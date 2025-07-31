@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan. See. Connect. - Futuristic 3D Business Cards</title>
+    <meta name="description" content="Create and share interactive 3D business cards that work with WebAR. Scan QR codes to view digital business cards in 3D.">
+    <meta property="og:image" content="https://yourdomain.com/preview.jpg">
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #ff00e4;
+            --dark: #0a0a15;
+            --darker: #05050a;
+            --light: #f0f0f0;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-highlight: rgba(255, 255, 255, 0.2);
+        }
+
+        .light-mode {
+            --dark: #f0f0f0;
+            --darker: #e0e0e0;
+            --light: #0a0a15;
+            --glass: rgba(0, 0, 0, 0.05);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --glass-highlight: rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Background Animation */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* Glassmorphism UI */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        /* Neon UI Elements */
+        .neon-text {
+            text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary);
+            color: var(--primary);
+        }
+
+        .neon-border {
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 10px var(--primary), inset 0 0 10px var(--primary);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Orbitron', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--darker);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        /* Layout */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            padding: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 2.2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding: 4rem 0;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Sections */
+        .section {
+            padding: 6rem 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        /* Model Viewer */
+        model-viewer {
+            width: 100%;
+            height: 500px;
+            background: transparent;
+            --poster-color: transparent;
+            margin: 0 auto;
+        }
+
+        /* QR Code */
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        #qrcode canvas {
+            border: 10px solid white;
+            border-radius: 10px;
+            background: white;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        /* Card Preview */
+        .card-preview {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin: 2rem 0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        /* Background Options */
+        .bg-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .bg-option {
+            height: 80px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+        }
+
+        .bg-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                min-height: auto;
+                padding: 6rem 0 4rem;
+            }
+            
+            .section {
+                padding: 4rem 0;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+
+        /* Dark/Light Toggle */
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background: var(--glass);
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+        }
+
+        .theme-toggle:after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .theme-toggle:after {
+            left: calc(100% - 22px);
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+        .mt-3 { margin-top: 3rem; }
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mb-3 { margin-bottom: 3rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+    </style>
+</head>
+<body>
+    <!-- Background Animation -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <a href="#" class="logo" onclick="showSection('home')">
+                <span class="material-icons logo-icon">fingerprint</span>
+                <span>3DCard</span>
+            </a>
+            <div class="theme-toggle" onclick="toggleTheme()"></div>
+        </header>
+
+        <!-- Home Section -->
+        <section id="home-section" class="hero">
+            <div class="hero-content">
+                <h1 class="neon-text">SCAN. SEE. CONNECT.</h1>
+                <p>The future of networking is here. Create your interactive 3D business card that works anywhere with just a QR code scan.</p>
+                <button class="btn btn-primary" onclick="showSection('create')">
+                    <span class="material-icons">add</span> Create Your 3D Card
+                </button>
+            </div>
+        </section>
+
+        <!-- Create Card Section -->
+        <section id="create-section" class="section hidden">
+            <h2 class="section-title">Create Your Card</h2>
+            
+            <div class="glass-card">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('upload')">Upload</div>
+                    <div class="tab" onclick="switchTab('design')">Design</div>
+                    <div class="tab" onclick="switchTab('preview')">Preview</div>
+                    <div class="tab" onclick="switchTab('publish')">Publish</div>
+                </div>
+                
+                <!-- Upload Tab -->
+                <div id="upload-tab" class="tab-content">
+                    <div class="form-group">
+                        <label for="card-name" class="form-label">Your Name</label>
+                        <input type="text" id="card-name" class="form-control" placeholder="John Doe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card-title" class="form-label">Your Title</label>
+                        <input type="text" id="card-title" class="form-control" placeholder="CEO at Example Inc.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card-model" class="form-label">3D Model (GLB/GLTF/OBJ)</label>
+                        <input type="file" id="card-model" class="form-control" accept=".glb,.gltf,.obj">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card-image" class="form-label">Profile Image/Logo</label>
+                        <input type="file" id="card-image" class="form-control" accept="image/*">
+                    </div>
+                    
+                    <button class="btn btn-primary mt-2" onclick="switchTab('design')">
+                        Next: Design <span class="material-icons">arrow_forward</span>
+                    </button>
+                </div>
+                
+                <!-- Design Tab -->
+                <div id="design-tab" class="tab-content hidden">
+                    <div class="form-group">
+                        <label class="form-label">Background Animation</label>
+                        <div class="bg-options">
+                            <div class="bg-option selected" style="background: #000428; background: linear-gradient(to right, #000428, #004e92);" onclick="selectBackground('space')"></div>
+                            <div class="bg-option" style="background: #0f0c29; background: linear-gradient(to right, #0f0c29, #302b63, #24243e);" onclick="selectBackground('matrix')"></div>
+                            <div class="bg-option" style="background: #1a1a1a; background: linear-gradient(to right, #1a1a1a, #434343);" onclick="selectBackground('dark')"></div>
+                            <div class="bg-option" style="background: #ff00cc; background: linear-gradient(to right, #ff00cc, #333399);" onclick="selectBackground('neon')"></div>
+                            <div class="bg-option" style="background: #00c6ff; background: linear-gradient(to right, #00c6ff, #0072ff);" onclick="selectBackground('blue')"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Card Effects</label>
+                        <div class="toolbar">
+                            <button class="btn btn-secondary" onclick="applyEffect('glow')">
+                                <span class="material-icons">flare</span> Glow
+                            </button>
+                            <button class="btn btn-secondary" onclick="applyEffect('hologram')">
+                                <span class="material-icons">filter_drama</span> Hologram
+                            </button>
+                            <button class="btn btn-secondary" onclick="applyEffect('wireframe')">
+                                <span class="material-icons">grid_on</span> Wireframe
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-preview" id="design-preview">
+                        <!-- 3D Preview will be rendered here -->
+                    </div>
+                    
+                    <div class="flex justify-between mt-2">
+                        <button class="btn btn-secondary" onclick="switchTab('upload')">
+                            <span class="material-icons">arrow_back</span> Back
+                        </button>
+                        <button class="btn btn-primary" onclick="switchTab('preview')">
+                            Next: Preview <span class="material-icons">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Preview Tab -->
+                <div id="preview-tab" class="tab-content hidden">
+                    <div class="text-center mb-3">
+                        <h3>Your 3D Business Card</h3>
+                        <p>Rotate and zoom to preview your card</p>
+                    </div>
+                    
+                    <model-viewer 
+                        id="preview-model"
+                        alt="3D Business Card"
+                        auto-rotate
+                        camera-controls
+                        ar
+                        ar-modes="webxr scene-viewer quick-look"
+                        style="width: 100%; height: 500px;"
+                    >
+                        <button slot="ar-button" class="btn btn-primary" style="position: absolute; bottom: 16px; right: 16px;">
+                            <span class="material-icons">view_in_ar</span> View in AR
+                        </button>
+                    </model-viewer>
+                    
+                    <div class="flex justify-between mt-2">
+                        <button class="btn btn-secondary" onclick="switchTab('design')">
+                            <span class="material-icons">arrow_back</span> Back
+                        </button>
+                        <button class="btn btn-primary" onclick="switchTab('publish')">
+                            Next: Publish <span class="material-icons">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Publish Tab -->
+                <div id="publish-tab" class="tab-content hidden">
+                    <div class="text-center mb-3">
+                        <h3>Publish Your Card</h3>
+                        <p>Share your 3D business card with the world</p>
+                    </div>
+                    
+                    <div id="qrcode"></div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Your Card URL</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="card-url" class="form-control" readonly value="https://yourdomain.com/view?id=XYZ123">
+                            <button class="btn btn-secondary" onclick="copyUrl()">
+                                <span class="material-icons">content_copy</span> Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="toolbar justify-center">
+                        <button class="btn btn-primary" onclick="downloadQR()">
+                            <span class="material-icons">download</span> Download QR
+                        </button>
+                        <button class="btn btn-secondary">
+                            <span class="material-icons">share</span> Share
+                        </button>
+                        <button class="btn btn-secondary" onclick="generateVCF()">
+                            <span class="material-icons">contact_page</span> VCF
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-center mt-2">
+                        <button class="btn btn-secondary" onclick="switchTab('preview')">
+                            <span class="material-icons">arrow_back</span> Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View Card Section (for QR code scans) -->
+        <section id="view-section" class="section hidden">
+            <div class="glass-card">
+                <div id="view-card-container">
+                    <model-viewer 
+                        id="view-model"
+                        alt="3D Business Card"
+                        auto-rotate
+                        camera-controls
+                        ar
+                        ar-modes="webxr scene-viewer quick-look"
+                        style="width: 100%; height: 500px;"
+                    >
+                        <button slot="ar-button" class="btn btn-primary" style="position: absolute; bottom: 16px; right: 16px;">
+                            <span class="material-icons">view_in_ar</span> View in AR
+                        </button>
+                    </model-viewer>
+                    
+                    <div class="text-center mt-3">
+                        <h2 id="view-name">John Doe</h2>
+                        <p id="view-title">CEO at Example Inc.</p>
+                    </div>
+                    
+                    <div class="toolbar justify-center mt-3">
+                        <button class="btn btn-primary" onclick="addToContacts()">
+                            <span class="material-icons">person_add</span> Add to Contacts
+                        </button>
+                        <button class="btn btn-secondary">
+                            <span class="material-icons">share</span> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Global variables
+        let currentCard = {
+            name: '',
+            title: '',
+            modelUrl: '',
+            imageUrl: '',
+            background: 'space',
+            effects: [],
+            cardId: generateId()
+        };
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initBackgroundAnimation();
+            checkUrlForCardView();
+            
+            // Set up model viewer for preview
+            const previewModel = document.getElementById('preview-model');
+            previewModel.addEventListener('load', () => {
+                // Model loaded
+            });
+            
+            // Set up file uploads
+            document.getElementById('card-model').addEventListener('change', handleModelUpload);
+            document.getElementById('card-image').addEventListener('change', handleImageUpload);
+        });
+        
+        // Background animation with Three.js
+        function initBackgroundAnimation() {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particles = [];
+            const particleCount = window.innerWidth < 768 ? 50 : 100;
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 3 + 1,
+                    speedX: Math.random() * 1 - 0.5,
+                    speedY: Math.random() * 1 - 0.5,
+                    color: `rgba(0, 240, 255, ${Math.random() * 0.5 + 0.1})`
+                });
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw connecting lines
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < 150) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(0, 240, 255, ${1 - distance / 150})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                // Draw particles
+                particles.forEach(particle => {
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fillStyle = particle.color;
+                    ctx.fill();
+                    
+                    // Move particles
+                    particle.x += particle.speedX;
+                    particle.y += particle.speedY;
+                    
+                    // Bounce off edges
+                    if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
+                    if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        
+        // Show/hide sections
+        function showSection(sectionId) {
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+            
+            if (sectionId === 'create') {
+                switchTab('upload');
+            }
+        }
+        
+        // Switch between tabs in create section
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+            
+            if (tabId === 'preview') {
+                updatePreview();
+            } else if (tabId === 'publish') {
+                generateQRCode();
+            }
+        }
+        
+        // Handle 3D model upload
+        function handleModelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentCard.modelUrl = e.target.result;
+                
+                // For design preview
+                if (document.getElementById('design-tab').classList.contains('hidden') === false) {
+                    renderDesignPreview();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Handle image upload
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentCard.imageUrl = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Select background
+        function selectBackground(bg) {
+            currentCard.background = bg;
+            document.querySelectorAll('.bg-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            renderDesignPreview();
+        }
+        
+        // Apply effect to card
+        function applyEffect(effect) {
+            const index = currentCard.effects.indexOf(effect);
+            if (index === -1) {
+                currentCard.effects.push(effect);
+            } else {
+                currentCard.effects.splice(index, 1);
+            }
+            
+            renderDesignPreview();
+        }
+        
+        // Render design preview with Three.js
+        function renderDesignPreview() {
+            const container = document.getElementById('design-preview');
+            container.innerHTML = '';
+            
+            if (!currentCard.modelUrl) {
+                container.innerHTML = '<p class="text-center">Upload a 3D model to see preview</p>';
+                return;
+            }
+            
+            // Update card info from form
+            currentCard.name = document.getElementById('card-name').value || 'Your Name';
+            currentCard.title = document.getElementById('card-title').value || 'Your Title';
+            
+            // Create a simple model-viewer for design preview
+            const modelViewer = document.createElement('model-viewer');
+            modelViewer.setAttribute('src', currentCard.modelUrl);
+            modelViewer.setAttribute('alt', '3D Business Card Preview');
+            modelViewer.setAttribute('auto-rotate', '');
+            modelViewer.setAttribute('camera-controls', '');
+            modelViewer.style.width = '100%';
+            modelViewer.style.height = '100%';
+            
+            container.appendChild(modelViewer);
+        }
+        
+        // Update preview tab with final card
+        function updatePreview() {
+            const previewModel = document.getElementById('preview-model');
+            
+            if (currentCard.modelUrl) {
+                previewModel.setAttribute('src', currentCard.modelUrl);
+            }
+            
+            // Apply effects would be implemented here
+            // This is a simplified version - in a real app you'd apply shaders or other effects
+        }
+        
+        // Generate QR code
+        function generateQRCode() {
+            const cardUrl = `https://yourdomain.com/view?id=${currentCard.cardId}`;
+            document.getElementById('card-url').value = cardUrl;
+            
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+            
+            QRCode.toCanvas(qrcodeDiv, cardUrl, { width: 200 }, function(error) {
+                if (error) console.error(error);
+            });
+        }
+        
+        // Copy URL to clipboard
+        function copyUrl() {
+            const urlInput = document.getElementById('card-url');
+            urlInput.select();
+            document.execCommand('copy');
+            
+            // Show feedback
+            const originalText = urlInput.value;
+            urlInput.value = 'Copied to clipboard!';
+            setTimeout(() => {
+                urlInput.value = originalText;
+            }, 2000);
+        }
+        
+        // Download QR code
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) return;
+            
+            const link = document.createElement('a');
+            link.download = `3dcard-${currentCard.cardId}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Generate VCF contact file
+        function generateVCF() {
+            const vcfData = [
+                'BEGIN:VCARD',
+                'VERSION:3.0',
+                `FN:${currentCard.name}`,
+                `TITLE:${currentCard.title}`,
+                'END:VCARD'
+            ].join('\n');
+            
+            const blob = new Blob([vcfData], { type: 'text/vcard' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.download = `${currentCard.name.replace(/\s+/g, '-').toLowerCase()}.vcf`;
+            link.href = url;
+            link.click();
+        }
+        
+        // Add to contacts (simulated)
+        function addToContacts() {
+            alert('Contact information would be saved to your device');
+        }
+        
+        // Check URL for card view
+        function checkUrlForCardView() {
+            const params = new URLSearchParams(window.location.search);
+            const cardId = params.get('id');
+            
+            if (cardId) {
+                // In a real app, you would fetch card data from a database
+                // Here we'll simulate loading a card
+                showSection('view');
+                
+                document.getElementById('view-name').textContent = currentCard.name || 'John Doe';
+                document.getElementById('view-title').textContent = currentCard.title || 'CEO at Example Inc.';
+                
+                if (currentCard.modelUrl) {
+                    document.getElementById('view-model').setAttribute('src', currentCard.modelUrl);
+                }
+            }
+        }
+        
+        // Toggle dark/light theme
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+        
+        // Generate random ID for cards
+        function generateId() {
+            return Math.random().toString(36).substring(2, 9) + Math.random().toString(36).substring(2, 9);
+        }
+    </script>
+</body>
+</html>
