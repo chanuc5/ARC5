@@ -544,7 +544,7 @@
                     <div class="form-group">
                         <label class="form-label">Your Card URL</label>
                         <div style="display: flex; gap: 10px;">
-                            <input type="text" id="card-url" class="form-control" readonly value="https://chanuc5.github.io/ARC5/view?id=XYZ123">
+                            <input type="text" id="card-url" class="form-control" readonly>
                             <button class="btn btn-secondary" onclick="copyUrl()">
                                 <span class="material-icons">content_copy</span> Copy
                             </button>
@@ -555,7 +555,7 @@
                         <button class="btn btn-primary" onclick="downloadQR()">
                             <span class="material-icons">download</span> Download QR
                         </button>
-                        <button class="btn btn-secondary">
+                        <button class="btn btn-secondary" onclick="shareCard()">
                             <span class="material-icons">share</span> Share
                         </button>
                         <button class="btn btn-secondary" onclick="generateVCF()">
@@ -599,7 +599,7 @@
                         <button class="btn btn-primary" onclick="addToContacts()">
                             <span class="material-icons">person_add</span> Add to Contacts
                         </button>
-                        <button class="btn btn-secondary">
+                        <button class="btn btn-secondary" onclick="shareCard()">
                             <span class="material-icons">share</span> Share
                         </button>
                     </div>
@@ -831,13 +831,20 @@
         
         // Generate QR code
         function generateQRCode() {
-            const cardUrl = `https://chanuc5.github.io/ARC5/view?id=${currentCard.cardId}`;
+            const cardUrl = `https://chanuc5.github.io/ARC5/?id=${currentCard.cardId}`;
             document.getElementById('card-url').value = cardUrl;
             
             const qrcodeDiv = document.getElementById('qrcode');
             qrcodeDiv.innerHTML = '';
             
-            QRCode.toCanvas(qrcodeDiv, cardUrl, { width: 200 }, function(error) {
+            QRCode.toCanvas(qrcodeDiv, cardUrl, { 
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            }, function(error) {
                 if (error) console.error(error);
             });
         }
@@ -861,10 +868,30 @@
             const canvas = document.querySelector('#qrcode canvas');
             if (!canvas) return;
             
+            // Create a temporary link
             const link = document.createElement('a');
-            link.download = `3dcard-${currentCard.cardId}.png`;
+            link.download = `3dcard-${currentCard.name.replace(/\s+/g, '-').toLowerCase() || 'my-card'}.png`;
             link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Share card
+        function shareCard() {
+            if (navigator.share) {
+                navigator.share({
+                    title: `${currentCard.name}'s 3D Business Card`,
+                    text: `Check out ${currentCard.name}'s interactive 3D business card`,
+                    url: document.getElementById('card-url').value
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                copyUrl();
+                alert('Link copied to clipboard. Share it manually.');
+            }
         }
         
         // Generate VCF contact file
@@ -872,8 +899,8 @@
             const vcfData = [
                 'BEGIN:VCARD',
                 'VERSION:3.0',
-                `FN:${currentCard.name}`,
-                `TITLE:${currentCard.title}`,
+                `FN:${currentCard.name || 'Your Name'}`,
+                `TITLE:${currentCard.title || 'Your Title'}`,
                 'END:VCARD'
             ].join('\n');
             
@@ -881,9 +908,11 @@
             const url = URL.createObjectURL(blob);
             
             const link = document.createElement('a');
-            link.download = `${currentCard.name.replace(/\s+/g, '-').toLowerCase()}.vcf`;
+            link.download = `${currentCard.name.replace(/\s+/g, '-').toLowerCase() || 'contact'}.vcf`;
             link.href = url;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         }
         
         // Add to contacts (simulated)
