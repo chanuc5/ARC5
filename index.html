@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan. See. Connect. - Futuristic 3D Business Cards</title>
     <meta name="description" content="Create and share interactive 3D business cards that work with WebAR. Scan QR codes to view digital business cards in 3D.">
-    <meta property="og:image" content="https://chanuc5.github.io/ARC5//preview.jpg">
+    <meta property="og:image" content="https://chanuc5.github.io/ARC5/preview.jpg">
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -544,7 +544,7 @@
                     <div class="form-group">
                         <label class="form-label">Your Card URL</label>
                         <div style="display: flex; gap: 10px;">
-                            <input type="text" id="card-url" class="form-control" readonly value="https://chanuc5.github.io/ARC5//view?id=XYZ123">
+                            <input type="text" id="card-url" class="form-control" readonly value="https://chanuc5.github.io/ARC5/view?id=XYZ123">
                             <button class="btn btn-secondary" onclick="copyUrl()">
                                 <span class="material-icons">content_copy</span> Copy
                             </button>
@@ -831,7 +831,7 @@
         
         // Generate QR code
         function generateQRCode() {
-            const cardUrl = `https://yourdomain.com/view?id=${currentCard.cardId}`;
+            const cardUrl = `https://chanuc5.github.io/ARC5/view?id=${currentCard.cardId}`;
             document.getElementById('card-url').value = cardUrl;
             
             const qrcodeDiv = document.getElementById('qrcode');
