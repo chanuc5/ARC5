@@ -3,573 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebAR Experience - 3D Editor with AR Capabilities</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <title>AR Simulation for GitHub Pages</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --accent: #8b5cf6;
-            --dark: #1f2937;
-            --dark-light: #374151;
-            --light: #f9fafb;
-            --gray: #9ca3af;
-            --border: #e5e7eb;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --card-bg: rgba(30, 30, 46, 0.7);
-            --card-border: rgba(99, 102, 241, 0.2);
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: var(--light);
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
             min-height: 100vh;
             padding: 20px;
-            overflow-x: hidden;
         }
         
         .container {
-            max-width: 1600px;
+            max-width: 1200px;
             margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            min-height: calc(100vh - 40px);
         }
         
         header {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 15px 25px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--card-border);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
         }
         
         h1 {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
         
-        .main-content {
-            display: flex;
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
-            flex: 1;
+            margin-bottom: 40px;
         }
         
-        .panel {
-            width: 380px;
-            background: var(--card-bg);
-            border-radius: 16px;
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
             backdrop-filter: blur(10px);
-            border: 1px solid var(--card-border);
-            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        .preview-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         }
         
-        .preview-box {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            height: 100%;
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--card-border);
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #4facfe;
         }
         
-        h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--light);
-        }
-        
-        h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 16px 0 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--card-border);
-            color: var(--primary-light);
-        }
-        
-        .input-group {
+        .card p {
+            line-height: 1.6;
             margin-bottom: 20px;
         }
         
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            color: #c7d2fe;
-        }
-        
-        .input-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        
-        .input-row > * {
-            flex: 1;
-        }
-        
-        input[type="text"], input[type="number"], select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(30, 30, 46, 0.6);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            font-size: 14px;
-            color: white;
-            transition: all 0.3s;
-        }
-        
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-            background: rgba(30, 30, 46, 0.8);
-        }
-        
-        input[type="color"] {
-            width: 100%;
-            height: 40px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            background: rgba(30, 30, 46, 0.6);
-        }
-        
-        button {
-            padding: 12px 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
-        }
-        
-        button.secondary {
-            background: rgba(30, 30, 46, 0.6);
-            color: var(--primary);
-            border: 1px solid var(--card-border);
-        }
-        
-        button.secondary:hover {
-            background: rgba(30, 30, 46, 0.8);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        
-        button.success {
-            background: var(--success);
-        }
-        
-        button.warning {
-            background: var(--warning);
-        }
-        
-        .preview-wrapper {
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid var(--card-border);
-        }
-        
-        #model-preview {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .preview-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            gap: 20px;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.7) 100%);
+        .ar-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
             text-align: center;
-            padding: 20px;
+            margin-bottom: 40px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
         }
         
-        .ar-button {
-            padding: 14px 28px;
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--success) 100%);
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 16px;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-        }
-        
-        .ar-button:hover {
-            background: linear-gradient(135deg, #0da271 0%, #16a34a 100%);
-            transform: translateY(-2px);
-        }
-        
-        .instructions {
-            background: rgba(16, 185, 129, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 10px;
-            border-left: 4px solid var(--secondary);
-        }
-        
-        .instructions h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: var(--light);
-            border: none;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .instructions ul {
-            padding-left: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #c7d2fe;
-        }
-        
-        .instructions li {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .instructions code {
-            background: rgba(99, 102, 241, 0.2);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 13px;
-            color: var(--primary);
-        }
-        
-        .primitive-form {
-            background: rgba(30, 30, 46, 0.6);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 10px;
-        }
-        
-        .primitive-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .primitive-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            padding: 10px 0;
-            flex-wrap: wrap;
-        }
-        
-        .toolbar-group {
-            display: flex;
-            gap: 8px;
-            background: rgba(30, 30, 46, 0.6);
-            padding: 8px;
+        .ar-placeholder {
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
-            border: 1px solid var(--card-border);
-        }
-        
-        .toolbar-button {
-            padding: 8px 12px;
-            background: rgba(30, 30, 46, 0.6);
-            color: #c7d2fe;
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 14px;
+            justify-content: center;
+            flex-direction: column;
+            margin: 20px 0;
         }
         
-        .toolbar-button:hover {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: var(--primary);
+        .ar-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #4facfe;
         }
         
-        .toolbar-button.active {
-            background: var(--primary);
+        .btn {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
             color: white;
-            border-color: var(--primary);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
         }
         
-        .history-buttons {
-            display: flex;
-            gap: 5px;
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        .history-button {
-            padding: 8px;
-            min-width: 40px;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .warning {
+            background: rgba(255, 193, 7, 0.15);
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
         }
         
         footer {
             text-align: center;
-            padding: 15px;
-            color: var(--gray);
-            font-size: 14px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--card-border);
-            margin-top: auto;
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* QR Code Section */
-        .qr-section {
-            background: rgba(30, 30, 46, 0.6);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 20px;
-        }
-        
-        .qr-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin: 15px 0;
-        }
-        
-        #qrcode {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .qr-download-options {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .download-btn {
-            padding: 10px 15px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        
-        .download-btn:hover {
-            background: var(--primary-dark);
-        }
-        
-        .google-lens-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        
-        .google-lens-info i {
-            color: #ea4335;
-            font-size: 20px;
-        }
-        
-        /* Loading spinner */
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Warning message */
-        .warning-message {
-            background: rgba(245, 158, 11, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 10px;
-            border-left: 4px solid var(--warning);
-        }
-        
-        .warning-message h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: var(--light);
-            border: none;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .warning-message ul {
-            padding-left: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #c7d2fe;
-        }
-        
-        .warning-message li {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        @media (max-width: 1100px) {
-            .main-content {
-                flex-direction: column;
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
             }
             
-            .panel {
-                width: 100%;
-            }
-            
-            .preview-box {
-                height: 500px;
-            }
-            
-            .primitive-grid {
+            .card-container {
                 grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .input-row {
-                flex-direction: column;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-            
-            .primitive-actions {
-                flex-direction: column;
-            }
-            
-            .toolbar {
-                flex-direction: column;
-            }
-            
-            .qr-download-options {
-                flex-direction: column;
-            }
-            
-            header {
-                flex-direction: column;
-                gap: 15px;
             }
         }
     </style>
@@ -577,805 +160,128 @@
 <body>
     <div class="container">
         <header>
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-cube"></i>
-                </div>
-                <h1>WebAR Experience</h1>
-            </div>
-            <div style="display: flex; gap: 15px;">
-                <button id="generate-qr" class="secondary">
-                    <i class="fas fa-qrcode"></i>
-                    Generate QR Code
-                </button>
-                <button id="start-ar" class="ar-button">
-                    <i class="fas fa-camera"></i>
-                    Start AR Experience
-                </button>
-            </div>
+            <h1>AR Simulation for GitHub Pages</h1>
+            <p class="subtitle">This page demonstrates how to handle AR functionality limitations on GitHub Pages with a simulated experience.</p>
         </header>
         
-        <div class="main-content">
-            <div class="panel">
-                <h2><i class="fas fa-cloud-upload-alt"></i> 3D Resources</h2>
-                
-                <div class="input-group">
-                    <label for="model-input">3D Model (GLB Format)</label>
-                    <div class="input-row">
-                        <input type="text" id="model-url" placeholder="Enter GLB URL or select file" value="https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Duck/glTF/Duck.gltf">
-                        <button id="model-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
-                    </div>
-                    <input type="file" id="model-file" accept=".glb,.gltf" hidden>
-                </div>
-                
-                <div class="input-group">
-                    <label for="target-input">AR Target File (.mind) - Required for AR</label>
-                    <div class="input-row">
-                        <input type="text" id="target-url" placeholder="Enter .mind file URL">
-                        <button id="target-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
-                    </div>
-                    <input type="file" id="target-file" accept=".mind" hidden>
-                </div>
-                
-                <div class="warning-message">
-                    <h3><i class="fas fa-exclamation-triangle"></i> AR Requirements</h3>
-                    <ul>
-                        <li><i class="fas fa-info-circle"></i> A .mind file is required for AR functionality</li>
-                        <li><i class="fas fa-check-circle"></i> 3D editing works without .mind file</li>
-                        <li><i class="fas fa-check-circle"></i> QR generation works without .mind file</li>
-                    </ul>
-                </div>
-                
-                <h2><i class="fas fa-cube"></i> Create 3D Primitive</h2>
-                <div class="primitive-form">
-                    <div class="input-group">
-                        <label for="primitive-type">Primitive Type</label>
-                        <select id="primitive-type">
-                            <option value="box">Box</option>
-                            <option value="sphere">Sphere</option>
-                            <option value="cylinder">Cylinder</option>
-                            <option value="cone">Cone</option>
-                            <option value="torus">Torus</option>
-                        </select>
-                    </div>
-                    
-                    <div class="primitive-grid">
-                        <div class="input-group">
-                            <label for="primitive-width">Width</label>
-                            <input type="number" id="primitive-width" value="1" min="0.1" step="0.1">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="primitive-height">Height</label>
-                            <input type="number" id="primitive-height" value="1" min="0.1" step="0.1">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="primitive-depth">Depth</label>
-                            <input type="number" id="primitive-depth" value="1" min="0.1" step="0.1">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="primitive-radius">Radius</label>
-                            <input type="number" id="primitive-radius" value="0.5" min="0.1" step="0.1">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="width-segments">Width Segments</label>
-                            <input type="number" id="width-segments" value="8" min="1" max="32">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="height-segments">Height Segments</label>
-                            <input type="number" id="height-segments" value="8" min="1" max="32">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="depth-segments">Depth Segments</label>
-                            <input type="number" id="depth-segments" value="1" min="1" max="16">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label for="primitive-color">Color</label>
-                            <input type="color" id="primitive-color" value="#6366f1">
-                        </div>
-                    </div>
-                    
-                    <div class="primitive-actions">
-                        <button id="add-primitive" class="success">
-                            <i class="fas fa-plus-circle"></i> Add Primitive
-                        </button>
-                        <button id="clear-primitives" class="warning">
-                            <i class="fas fa-trash-alt"></i> Clear All
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="qr-section">
-                    <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
-                    <p>Generate a QR code to share your 3D experience.</p>
-                    
-                    <div class="qr-container">
-                        <div id="qrcode"></div>
-                        
-                        <div class="qr-download-options">
-                            <button id="download-png" class="download-btn">
-                                <i class="fas fa-download"></i> PNG
-                            </button>
-                            <button id="download-jpg" class="download-btn">
-                                <i class="fas fa-download"></i> JPG
-                            </button>
-                            <button id="download-svg" class="download-btn">
-                                <i class="fas fa-download"></i> SVG
-                            </button>
-                        </div>
-                        
-                        <div class="google-lens-info">
-                            <i class="fab fa-google"></i>
-                            <span>Scan with Google Lens to view 3D experience</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="instructions">
-                    <h3><i class="fas fa-info-circle"></i> How to Use:</h3>
-                    <ul>
-                        <li><i class="fas fa-check"></i> Upload a GLB model or provide a URL</li>
-                        <li><i class="fas fa-check"></i> Create custom 3D primitives with the editor</li>
-                        <li><i class="fas fa-check"></i> Generate a QR code to share your 3D experience</li>
-                        <li><i class="fas fa-exclamation-triangle"></i> For AR: Provide a .mind file for image tracking</li>
-                    </ul>
-                </div>
+        <div class="warning">
+            <p><strong>Note:</strong> GitHub Pages provides HTTPS by default, but some AR features may require additional configuration or a different hosting solution for full functionality.</p>
+        </div>
+        
+        <div class="card-container">
+            <div class="card">
+                <h2>AR Simulation</h2>
+                <p>Experience a simulated augmented reality environment that works within the constraints of GitHub Pages hosting.</p>
+                <p>While not true AR, this demonstrates how to create engaging experiences that work within platform limitations.</p>
             </div>
             
-            <div class="preview-container">
-                <div class="preview-box">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h2>
-                            <i class="fas fa-cube"></i>
-                            3D Model & Primitive Editor
-                        </h2>
-                        <div class="toolbar">
-                            <div class="toolbar-group">
-                                <button id="translate-btn" class="toolbar-button active">
-                                    <i class="fas fa-arrows-alt"></i> Move
-                                </button>
-                                <button id="rotate-btn" class="toolbar-button">
-                                    <i class="fas fa-sync-alt"></i> Rotate
-                                </button>
-                                <button id="scale-btn" class="toolbar-button">
-                                    <i class="fas fa-expand-alt"></i> Scale
-                                </button>
-                            </div>
-                            <div class="toolbar-group">
-                                <button id="delete-btn" class="toolbar-button" title="Delete Selected">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                                <button id="duplicate-btn" class="toolbar-button" title="Duplicate Selected">
-                                    <i class="fas fa-copy"></i> Duplicate
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="preview-wrapper">
-                        <div id="model-preview"></div>
-                        <div id="model-placeholder" class="preview-placeholder">
-                            <i class="fas fa-cube" style="font-size: 64px; color: #4f46e5;"></i>
-                            <h3>3D Editor Workspace</h3>
-                            <p>Upload a 3D model or create a primitive to begin editing</p>
-                            <p>Use the toolbar to move, rotate, and scale objects</p>
-                        </div>
-                    </div>
-                    <div class="controls">
-                        <button id="reset-model">
-                            <i class="fas fa-sync-alt"></i>
-                            Reset View
-                        </button>
-                        <button id="center-model" class="secondary">
-                            <i class="fas fa-crosshairs"></i>
-                            Center Model
-                        </button>
-                    </div>
-                </div>
+            <div class="card">
+                <h2>GitHub Pages & HTTPS</h2>
+                <p>GitHub Pages serves all content over HTTPS, which is required for AR functionality that accesses device cameras and sensors.</p>
+                <p>This ensures secure connections for all users and meets browser security requirements.</p>
+            </div>
+            
+            <div class="card">
+                <h2>Implementation Tips</h2>
+                <p>1. Use feature detection to provide fallbacks when AR isn't available</p>
+                <p>2. Consider using WebXR polyfills for broader compatibility</p>
+                <p>3. Implement progressive enhancement for AR experiences</p>
             </div>
         </div>
         
+        <div class="ar-container">
+            <h2>AR Experience Simulator</h2>
+            <p>This simulates what an AR experience might look like on your device.</p>
+            
+            <div class="ar-placeholder">
+                <div class="ar-icon">🧭</div>
+                <p>AR content would appear here if full capabilities were available</p>
+            </div>
+            
+            <p>
+                <a href="#" class="btn">Start AR Experience</a>
+                <a href="#" class="btn btn-secondary">Learn More</a>
+            </p>
+        </div>
+        
+        <div class="card">
+            <h2>Making AR Work on GitHub Pages</h2>
+            <p>To deploy AR content on GitHub Pages:</p>
+            <ol>
+                <li>Ensure all resources are loaded via HTTPS</li>
+                <li>Use relative paths for all internal links</li>
+                <li>Test the AR functionality on multiple devices</li>
+                <li>Provide fallback content for unsupported browsers</li>
+                <li>Consider using a dedicated AR library like AR.js or A-Frame</li>
+            </ol>
+            <p>While GitHub Pages provides the necessary HTTPS, some advanced AR features might still require a different hosting environment with specialized capabilities.</p>
+        </div>
+        
         <footer>
-            <p>WebAR Experience - 3D Editor works without .mind file, but AR functionality requires a .mind file for image tracking.</p>
+            <p>Sample AR-Compatible Page for GitHub Pages | HTTPS Required for AR Functionality</p>
+            <p>
+                <a href="#" class="btn btn-secondary">View Documentation</a>
+                <a href="#" class="btn">Get Started</a>
+            </p>
         </footer>
     </div>
-    
+
     <script>
-        // Global variables
-        let modelScene, modelCamera, modelRenderer, modelControls;
-        let transformControls;
-        let currentModel = null;
-        let primitives = [];
-        let selectedObject = null;
-        let currentMode = 'translate';
-        let objectCounter = 1;
-        
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            initModelPreview();
-            setupEventListeners();
-            setupPrimitiveUI();
-            generateQRCode();
-        });
-        
-        // Initialize 3D model preview
-        function initModelPreview() {
-            const container = document.getElementById('model-preview');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate AR functionality
+            const arButton = document.querySelector('.btn');
+            const arPlaceholder = document.querySelector('.ar-placeholder');
             
-            // Create scene
-            modelScene = new THREE.Scene();
-            modelScene.background = new THREE.Color(0x0f172a);
-            
-            // Create camera
-            modelCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            modelCamera.position.z = 5;
-            
-            // Create renderer
-            modelRenderer = new THREE.WebGLRenderer({ antialias: true });
-            modelRenderer.setSize(container.clientWidth, container.clientHeight);
-            modelRenderer.setPixelRatio(window.devicePixelRatio);
-            modelRenderer.shadowMap.enabled = true;
-            container.appendChild(modelRenderer.domElement);
-            
-            // Add lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            modelScene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(2, 3, 4);
-            directionalLight.castShadow = true;
-            modelScene.add(directionalLight);
-            
-            const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
-            backLight.position.set(-2, -1, -3);
-            modelScene.add(backLight);
-            
-            // Add grid helper
-            const gridHelper = new THREE.GridHelper(20, 20, 0x4f46e5, 0x4f46e5);
-            gridHelper.material.opacity = 0.15;
-            gridHelper.material.transparent = true;
-            gridHelper.position.y = -2;
-            modelScene.add(gridHelper);
-            
-            // Add orbit controls
-            modelControls = new THREE.OrbitControls(modelCamera, modelRenderer.domElement);
-            modelControls.enableDamping = true;
-            modelControls.dampingFactor = 0.05;
-            modelControls.screenSpacePanning = true;
-            
-            // Add transform controls
-            transformControls = new THREE.TransformControls(modelCamera, modelRenderer.domElement);
-            transformControls.addEventListener('dragging-changed', function(event) {
-                modelControls.enabled = !event.value;
-            });
-            modelScene.add(transformControls);
-            
-            // Handle object selection
-            modelRenderer.domElement.addEventListener('click', (event) => {
-                const mouse = new THREE.Vector2();
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            arButton.addEventListener('click', function(e) {
+                e.preventDefault();
                 
-                const raycaster = new THREE.Raycaster();
-                raycaster.setFromCamera(mouse, modelCamera);
+                // Simulate AR loading
+                arPlaceholder.innerHTML = `
+                    <div class="ar-icon">🌐</div>
+                    <p>Loading AR environment...</p>
+                `;
                 
-                const intersects = raycaster.intersectObjects(modelScene.children, true);
-                
-                if (intersects.length > 0) {
-                    const object = intersects[0].object;
-                    
-                    // Don't select lights or helpers
-                    if (object.isLight || object.isAxesHelper || object.isGridHelper) return;
-                    
-                    selectObject(object);
-                } else {
-                    deselectObject();
-                }
-            });
-            
-            // Animation loop
-            function animate() {
-                requestAnimationFrame(animate);
-                modelControls.update();
-                modelRenderer.render(modelScene, modelCamera);
-            }
-            
-            animate();
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                modelCamera.aspect = container.clientWidth / container.clientHeight;
-                modelCamera.updateProjectionMatrix();
-                modelRenderer.setSize(container.clientWidth, container.clientHeight);
-            });
-            
-            // Load default model
-            loadModel(document.getElementById('model-url').value);
-        }
-        
-        // Select an object
-        function selectObject(object) {
-            if (selectedObject === object) return;
-            
-            deselectObject();
-            selectedObject = object;
-            transformControls.attach(selectedObject);
-            
-            // Highlight selected object
-            if (selectedObject.material) {
-                selectedObject.userData.originalMaterial = selectedObject.material;
-                const highlightMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xffff00,
-                    emissive: 0x444400,
-                    shininess: 100
-                });
-                selectedObject.material = highlightMaterial;
-            }
-        }
-        
-        // Deselect current object
-        function deselectObject() {
-            if (selectedObject) {
-                if (selectedObject.userData.originalMaterial) {
-                    selectedObject.material = selectedObject.userData.originalMaterial;
-                }
-                transformControls.detach();
-                selectedObject = null;
-            }
-        }
-        
-        // Set up event listeners
-        function setupEventListeners() {
-            // Model file handling
-            document.getElementById('model-file-btn').addEventListener('click', () => {
-                document.getElementById('model-file').click();
-            });
-            
-            document.getElementById('model-file').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    document.getElementById('model-url').value = url;
-                    loadModel(url);
-                }
-            });
-            
-            document.getElementById('model-url').addEventListener('change', (e) => {
-                if (e.target.value) {
-                    loadModel(e.target.value);
-                }
-            });
-            
-            // Target file handling
-            document.getElementById('target-file-btn').addEventListener('click', () => {
-                document.getElementById('target-file').click();
-            });
-            
-            document.getElementById('target-file').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    document.getElementById('target-url').value = url;
-                }
-            });
-            
-            // Reset buttons
-            document.getElementById('reset-model').addEventListener('click', resetModelView);
-            document.getElementById('center-model').addEventListener('click', centerModel);
-            
-            // Start AR button
-            document.getElementById('start-ar').addEventListener('click', startAR);
-            
-            // Toolbar buttons
-            document.getElementById('translate-btn').addEventListener('click', () => setTransformMode('translate'));
-            document.getElementById('rotate-btn').addEventListener('click', () => setTransformMode('rotate'));
-            document.getElementById('scale-btn').addEventListener('click', () => setTransformMode('scale'));
-            document.getElementById('delete-btn').addEventListener('click', deleteSelected);
-            document.getElementById('duplicate-btn').addEventListener('click', duplicateSelected);
-            
-            // QR Code buttons
-            document.getElementById('generate-qr').addEventListener('click', generateQRCode);
-            document.getElementById('download-png').addEventListener('click', () => downloadQRCode('png'));
-            document.getElementById('download-jpg').addEventListener('click', () => downloadQRCode('jpg'));
-            document.getElementById('download-svg').addEventListener('click', () => downloadQRCode('svg'));
-        }
-        
-        // Set transform mode
-        function setTransformMode(mode) {
-            currentMode = mode;
-            transformControls.setMode(mode);
-            
-            // Update UI
-            document.querySelectorAll('.toolbar-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(`${mode}-btn`).classList.add('active');
-        }
-        
-        // Delete selected object
-        function deleteSelected() {
-            if (selectedObject) {
-                // Remove from scene
-                modelScene.remove(selectedObject);
-                
-                // Remove from primitives array if it's a primitive
-                const index = primitives.indexOf(selectedObject);
-                if (index !== -1) {
-                    primitives.splice(index, 1);
-                }
-                
-                deselectObject();
-                
-                // Show placeholder if no objects
-                if (!currentModel && primitives.length === 0) {
-                    document.getElementById('model-placeholder').style.display = 'flex';
-                }
-            }
-        }
-        
-        // Duplicate selected object
-        function duplicateSelected() {
-            if (selectedObject) {
-                // Clone the object
-                const clone = selectedObject.clone();
-                
-                // Position it slightly offset
-                clone.position.x += 0.5;
-                clone.position.y += 0.5;
-                
-                // Add to scene
-                modelScene.add(clone);
-                
-                // If it's a primitive, add to primitives array
-                if (primitives.includes(selectedObject)) {
-                    primitives.push(clone);
-                }
-                
-                // Select the new object
-                selectObject(clone);
-            }
-        }
-        
-        // Set up primitive UI
-        function setupPrimitiveUI() {
-            const primitiveType = document.getElementById('primitive-type');
-            
-            // Update UI based on primitive type
-            primitiveType.addEventListener('change', () => {
-                updatePrimitiveUI();
-            });
-            
-            // Add primitive button
-            document.getElementById('add-primitive').addEventListener('click', addPrimitive);
-            
-            // Clear primitives button
-            document.getElementById('clear-primitives').addEventListener('click', clearPrimitives);
-            
-            // Initialize UI
-            updatePrimitiveUI();
-        }
-        
-        // Update primitive UI based on selected type
-        function updatePrimitiveUI() {
-            const type = document.getElementById('primitive-type').value;
-            const widthInput = document.getElementById('primitive-width');
-            const heightInput = document.getElementById('primitive-height');
-            const depthInput = document.getElementById('primitive-depth');
-            const radiusInput = document.getElementById('primitive-radius');
-            
-            // Reset all inputs
-            widthInput.disabled = false;
-            heightInput.disabled = false;
-            depthInput.disabled = false;
-            radiusInput.disabled = false;
-            
-            // Update labels based on primitive type
-            switch(type) {
-                case 'box':
-                    widthInput.parentNode.querySelector('label').textContent = 'Width';
-                    heightInput.parentNode.querySelector('label').textContent = 'Height';
-                    depthInput.parentNode.querySelector('label').textContent = 'Depth';
-                    radiusInput.disabled = true;
-                    break;
-                case 'sphere':
-                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
-                    heightInput.parentNode.querySelector('label').textContent = 'Width Segments';
-                    depthInput.parentNode.querySelector('label').textContent = 'Height Segments';
-                    radiusInput.disabled = true;
-                    break;
-                case 'cylinder':
-                    widthInput.parentNode.querySelector('label').textContent = 'Radius Top';
-                    heightInput.parentNode.querySelector('label').textContent = 'Radius Bottom';
-                    depthInput.parentNode.querySelector('label').textContent = 'Height';
-                    radiusInput.disabled = true;
-                    break;
-                case 'cone':
-                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
-                    heightInput.parentNode.querySelector('label').textContent = 'Height';
-                    depthInput.parentNode.querySelector('label').textContent = 'Radial Segments';
-                    radiusInput.disabled = true;
-                    break;
-                case 'torus':
-                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
-                    heightInput.parentNode.querySelector('label').textContent = 'Tube';
-                    depthInput.parentNode.querySelector('label').textContent = 'Radial Segments';
-                    radiusInput.parentNode.querySelector('label').textContent = 'Tubular Segments';
-                    break;
-            }
-        }
-        
-        // Add primitive to scene
-        function addPrimitive() {
-            const type = document.getElementById('primitive-type').value;
-            const width = parseFloat(document.getElementById('primitive-width').value);
-            const height = parseFloat(document.getElementById('primitive-height').value);
-            const depth = parseFloat(document.getElementById('primitive-depth').value);
-            const radius = parseFloat(document.getElementById('primitive-radius').value);
-            const widthSegs = parseInt(document.getElementById('width-segments').value);
-            const heightSegs = parseInt(document.getElementById('height-segments').value);
-            const depthSegs = parseInt(document.getElementById('depth-segments').value);
-            const color = document.getElementById('primitive-color').value;
-            
-            let geometry, material, mesh;
-            
-            material = new THREE.MeshPhongMaterial({
-                color: color,
-                shininess: 80,
-                side: THREE.DoubleSide
-            });
-            
-            const params = {
-                width, height, depth, radius, 
-                widthSegs, heightSegs, depthSegs,
-                radialSegments: widthSegs,
-                tubularSegments: depthSegs
-            };
-            
-            switch(type) {
-                case 'box':
-                    geometry = new THREE.BoxGeometry(width, height, depth, widthSegs, heightSegs, depthSegs);
-                    break;
-                case 'sphere':
-                    geometry = new THREE.SphereGeometry(width, heightSegs, depthSegs);
-                    break;
-                case 'cylinder':
-                    geometry = new THREE.CylinderGeometry(width, height, depth, widthSegs);
-                    break;
-                case 'cone':
-                    geometry = new THREE.ConeGeometry(width, height, depthSegs);
-                    break;
-                case 'torus':
-                    geometry = new THREE.TorusGeometry(width, height, depthSegs, depth);
-                    break;
-                default:
-                    geometry = new THREE.BoxGeometry(1, 1, 1);
-            }
-            
-            mesh = new THREE.Mesh(geometry, material);
-            mesh.position.set(0, 0, 0);
-            mesh.userData.type = type;
-            mesh.userData.params = params;
-            mesh.userData.name = `Primitive ${objectCounter++}`;
-            
-            modelScene.add(mesh);
-            primitives.push(mesh);
-            
-            // Hide placeholder
-            document.getElementById('model-placeholder').style.display = 'none';
-            
-            // Select the new primitive
-            selectObject(mesh);
-            
-            // Center the primitive
-            centerModel();
-        }
-        
-        // Clear all primitives
-        function clearPrimitives() {
-            for (const primitive of primitives) {
-                modelScene.remove(primitive);
-            }
-            primitives = [];
-            
-            // Show placeholder if no model is loaded
-            if (!currentModel) {
-                document.getElementById('model-placeholder').style.display = 'flex';
-            }
-            
-            deselectObject();
-        }
-        
-        // Load 3D model
-        function loadModel(url) {
-            // Remove existing model
-            if (currentModel) {
-                modelScene.remove(currentModel);
-                currentModel = null;
-            }
-            
-            // Show loading indicator
-            document.getElementById('model-placeholder').innerHTML = `
-                <div class="loader">
-                    <div style="font-size: 64px; color: #4f46e5; margin-bottom: 20px; animation: spin 1s linear infinite;">
-                        <i class="fas fa-spinner spinner"></i>
-                    </div>
-                    <h3>Loading 3D Model</h3>
-                    <p>Please wait while we load your model...</p>
-                </div>
-            `;
-            
-            // Create a loader
-            const loader = new THREE.GLTFLoader();
-            
-            // Load GLB model
-            loader.load(
-                url,
-                (gltf) => {
-                    const model = gltf.scene;
-                    modelScene.add(model);
-                    
-                    // Center and scale model
-                    centerModel(model);
-                    
-                    currentModel = model;
-                    currentModel.userData.name = "3D Model";
-                    document.getElementById('model-placeholder').style.display = 'none';
-                },
-                undefined,
-                (error) => {
-                    console.error('Error loading model:', error);
-                    document.getElementById('model-placeholder').innerHTML = `
-                        <div style="font-size: 64px; color: #ef4444; margin-bottom: 20px;">
-                            <i class="fas fa-exclamation-triangle"></i>
+                setTimeout(() => {
+                    arPlaceholder.innerHTML = `
+                        <div style="position: relative; width: 100%; height: 100%;">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                                        width: 150px; height: 150px; background: rgba(79, 172, 254, 0.2); 
+                                        border: 2px solid #4facfe; border-radius: 10px; display: flex; 
+                                        align-items: center; justify-content: center; animation: pulse 2s infinite;">
+                                <div style="font-size: 48px;">🦄</div>
+                            </div>
                         </div>
-                        <h3>Error Loading Model</h3>
-                        <p>Could not load the 3D model. Please check the URL or file format.</p>
-                        <button class="button secondary" onclick="document.getElementById('model-placeholder').style.display = 'none'">
-                            <i class="fas fa-times"></i> Close
-                        </button>
+                        <p>AR object placed in your space</p>
+                        <style>
+                            @keyframes pulse {
+                                0% { transform: translate(-50%, -50%) scale(1); }
+                                50% { transform: translate(-50%, -50%) scale(1.1); }
+                                100% { transform: translate(-50%, -50%) scale(1); }
+                            }
+                        </style>
                     `;
-                }
-            );
-        }
-        
-        // Center model in view
-        function centerModel(model = currentModel) {
-            if (!model) return;
-            
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            
-            model.position.x -= center.x;
-            model.position.y -= center.y;
-            model.position.z -= center.z;
-            
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 5 / maxDim;
-            model.scale.set(scale, scale, scale);
-            
-            modelCamera.position.set(0, 0, 5);
-            modelCamera.lookAt(0, 0, 0);
-            modelControls.update();
-        }
-        
-        // Reset model view
-        function resetModelView() {
-            if (!modelControls) return;
-            
-            modelCamera.position.set(0, 0, 5);
-            modelCamera.lookAt(0, 0, 0);
-            modelControls.reset();
-        }
-        
-        // Start AR experience
-        function startAR() {
-            const modelUrl = document.getElementById('model-url').value;
-            const targetUrl = document.getElementById('target-url').value;
-            
-            if (!modelUrl && primitives.length === 0) {
-                alert('Please upload a 3D model or create a primitive first');
-                return;
-            }
-            
-            if (!targetUrl) {
-                alert('AR functionality requires a .mind file for image tracking. Please provide a .mind file to use AR features.');
-                return;
-            }
-            
-            // Check if we're on HTTPS or localhost
-            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-                alert('AR functionality requires HTTPS. Please host this page on a secure server or run it on localhost.');
-                return;
-            }
-            
-            // Start MindAR
-            alert('AR experience would start now with the current scene objects.\nIn a real implementation, this would launch the AR viewer.');
-        }
-        
-        // Generate QR Code
-        function generateQRCode() {
-            const qrElement = document.getElementById('qrcode');
-            qrElement.innerHTML = '';
-            
-            // Get current URL to encode in QR code
-            const currentUrl = window.location.href;
-            
-            // Generate QR code
-            QRCode.toCanvas(qrElement, currentUrl, {
-                width: 180,
-                margin: 1,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff'
-                }
-            }, function (error) {
-                if (error) console.error(error);
+                }, 1500);
             });
-        }
-        
-        // Download QR Code
-        function downloadQRCode(format) {
-            const canvas = document.querySelector('#qrcode canvas');
-            if (!canvas) return;
             
-            let mimeType, extension;
+            // Add animation to cards on scroll
+            const cards = document.querySelectorAll('.card');
             
-            switch(format) {
-                case 'png':
-                    mimeType = 'image/png';
-                    extension = 'png';
-                    break;
-                case 'jpg':
-                    mimeType = 'image/jpeg';
-                    extension = 'jpg';
-                    break;
-                case 'svg':
-                    // For SVG, we need to generate it separately
-                    const currentUrl = window.location.href;
-                    const svgContent = `
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-                            <rect width="100%" height="100%" fill="white"/>
-                            ${generateQRCodeSvgPath(currentUrl)}
-                        </svg>
-                    `;
-                    
-                    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `ar-experience.${extension}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    return;
-                default:
-                    mimeType = 'image/png';
-                    extension = 'png';
-            }
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
             
-            const image = canvas.toDataURL(mimeType);
-            const a = document.createElement('a');
-            a.href = image;
-            a.download = `ar-experience.${extension}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-        
-        // Helper function to generate SVG path for QR code
-        function generateQRCodeSvgPath(text) {
-            // This is a simplified version - in a real implementation, 
-            // you would use a proper QR code library that can generate SVG paths
-            return `<path d="M20,20h140v140H20V20z M40,40h100v100H40V40z" fill="black"/>`;
-        }
+            cards.forEach(card => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+        });
     </script>
 </body>
 </html>
