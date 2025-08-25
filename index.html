@@ -609,6 +609,79 @@
             display: block;
         }
         
+        /* AR Viewer */
+        #ar-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+        
+        #ar-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #ar-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #ar-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #ar-status {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            z-index: 1001;
+            display: none;
+        }
+        
+        #ar-tracking-status {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            z-index: 1001;
+        }
+        
+        #ar-tracking-status.tracking {
+            background: rgba(34, 197, 94, 0.7);
+        }
+        
+        #ar-tracking-status.not-tracking {
+            background: rgba(239, 68, 68, 0.7);
+        }
+        
         @media (max-width: 1100px) {
             .main-content {
                 flex-direction: column;
@@ -893,6 +966,18 @@
         </footer>
     </div>
     
+    <!-- AR Viewer Container -->
+    <div id="ar-viewer">
+        <div id="ar-container">
+            <canvas id="ar-canvas"></canvas>
+            <button id="ar-back">
+                <i class="fas fa-arrow-left"></i> Back to Editor
+            </button>
+            <div id="ar-status">Loading AR Experience...</div>
+            <div id="ar-tracking-status" class="not-tracking">Looking for target...</div>
+        </div>
+    </div>
+    
     <script>
         // Global variables
         let modelScene, modelCamera, modelRenderer, modelControls;
@@ -910,6 +995,23 @@
             setupPrimitiveUI();
             setupTabs();
             generateQRCode(); // Generate initial QR code
+            
+            // Check if we're in AR mode from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('ar') === 'true') {
+                const modelUrl = urlParams.get('model') || document.getElementById('model-url').value;
+                const targetUrl = urlParams.get('target') || document.getElementById('target-url').value;
+                
+                document.getElementById('model-url').value = modelUrl;
+                document.getElementById('target-url').value = targetUrl;
+                
+                // Load the model and start AR
+                loadModel(modelUrl, () => {
+                    setTimeout(() => {
+                        startAR();
+                    }, 1000);
+                });
+            }
         });
         
         // Initialize 3D model preview
@@ -1115,6 +1217,12 @@
             document.getElementById('download-png').addEventListener('click', () => downloadQRCode('png'));
             document.getElementById('download-jpg').addEventListener('click', () => downloadQRCode('jpg'));
             document.getElementById('download-svg').addEventListener('click', () => downloadQRCode('svg'));
+            
+            // AR back button
+            document.getElementById('ar-back').addEventListener('click', () => {
+                document.getElementById('ar-viewer').style.display = 'none';
+                document.querySelector('.container').style.display = 'flex';
+            });
         }
         
         // Set transform mode
@@ -1335,7 +1443,7 @@
         }
         
         // Load 3D model
-        function loadModel(url) {
+        function loadModel(url, callback) {
             // Remove existing model
             if (currentModel) {
                 modelScene.remove(currentModel);
@@ -1352,6 +1460,7 @@
                     <p>Please wait while we load your model...</p>
                 </div>
             `;
+            document.getElementById('model-placeholder').style.display = 'flex';
             
             // Create a loader
             const loader = new THREE.GLTFLoader();
@@ -1370,6 +1479,8 @@
                     currentModel.userData.name = "3D Model";
                     document.getElementById('model-placeholder').style.display = 'none';
                     updateObjectList();
+                    
+                    if (callback) callback();
                 },
                 undefined,
                 (error) => {
@@ -1384,6 +1495,8 @@
                             <i class="fas fa-times"></i> Close
                         </button>
                     `;
+                    
+                    if (callback) callback();
                 }
             );
         }
@@ -1439,8 +1552,147 @@
                 return;
             }
             
-            // Start MindAR
-            alert('AR experience would start now with the current scene objects.\nIn a real implementation, this would launch the AR viewer.');
+            // Show AR viewer
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('ar-viewer').style.display = 'flex';
+            document.getElementById('ar-status').style.display = 'block';
+            
+            // Start AR simulation
+            simulateARExperience();
+        }
+        
+        // Simulate AR experience
+        function simulateARExperience() {
+            const arCanvas = document.getElementById('ar-canvas');
+            const arStatus = document.getElementById('ar-status');
+            const arTrackingStatus = document.getElementById('ar-tracking-status');
+            
+            // Create a simple AR simulation
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: arCanvas, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Add camera feed background (simulated)
+            const videoTexture = createCameraTexture();
+            const videoGeometry = new THREE.PlaneGeometry(16, 9);
+            const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+            const videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
+            videoPlane.scale.set(20, 20, 20);
+            videoPlane.position.z = -10;
+            scene.add(videoPlane);
+            
+            // Add a grid floor
+            const gridHelper = new THREE.GridHelper(20, 20, 0xffffff, 0xffffff);
+            gridHelper.material.opacity = 0.2;
+            gridHelper.material.transparent = true;
+            gridHelper.position.y = -2;
+            scene.add(gridHelper);
+            
+            // Add the 3D model to the AR scene
+            if (currentModel) {
+                const modelClone = currentModel.clone();
+                scene.add(modelClone);
+                
+                // Position the model in the center
+                modelClone.position.set(0, 0, 0);
+                
+                // Add animation
+                let time = 0;
+                function animateModel() {
+                    time += 0.01;
+                    modelClone.rotation.y = time;
+                    requestAnimationFrame(animateModel);
+                }
+                animateModel();
+            }
+            
+            // Add primitives to the AR scene
+            primitives.forEach(primitive => {
+                const primitiveClone = primitive.clone();
+                primitiveClone.position.x = (Math.random() - 0.5) * 3;
+                primitiveClone.position.z = (Math.random() - 0.5) * 3;
+                scene.add(primitiveClone);
+            });
+            
+            // Add lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(2, 3, 4);
+            scene.add(directionalLight);
+            
+            // Position camera
+            camera.position.set(0, 1.5, 3);
+            
+            // Simulate tracking after a delay
+            setTimeout(() => {
+                arStatus.style.display = 'none';
+                arTrackingStatus.textContent = 'Target found!';
+                arTrackingStatus.className = 'tracking';
+            }, 2000);
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // Create a simulated camera texture
+        function createCameraTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const context = canvas.getContext('2d');
+            
+            // Draw a gradient background
+            const gradient = context.createRadialGradient(256, 256, 50, 256, 256, 300);
+            gradient.addColorStop(0, '#4f46e5');
+            gradient.addColorStop(1, '#1e293b');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 512, 512);
+            
+            // Draw some random noise to simulate camera feed
+            const imageData = context.getImageData(0, 0, 512, 512);
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                // Add some random noise
+                const noise = Math.random() * 20;
+                data[i] += noise;     // R
+                data[i + 1] += noise; // G
+                data[i + 2] += noise; // B
+            }
+            context.putImageData(imageData, 0, 0);
+            
+            // Draw a target symbol in the center
+            context.strokeStyle = '#ffffff';
+            context.lineWidth = 3;
+            context.beginPath();
+            context.arc(256, 256, 50, 0, Math.PI * 2);
+            context.stroke();
+            
+            context.beginPath();
+            context.moveTo(206, 256);
+            context.lineTo(306, 256);
+            context.stroke();
+            
+            context.beginPath();
+            context.moveTo(256, 206);
+            context.lineTo(256, 306);
+            context.stroke();
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
         }
         
         // Update object list
@@ -1560,11 +1812,16 @@
             const qrElement = document.getElementById('qrcode');
             qrElement.innerHTML = '';
             
-            // Get current URL to encode in QR code
-            const currentUrl = window.location.href;
+            // Get model and target URLs
+            const modelUrl = encodeURIComponent(document.getElementById('model-url').value);
+            const targetUrl = encodeURIComponent(document.getElementById('target-url').value);
+            
+            // Create a URL with parameters for AR experience
+            const currentUrl = window.location.href.split('?')[0]; // Remove existing parameters
+            const arUrl = `${currentUrl}?ar=true&model=${modelUrl}&target=${targetUrl}`;
             
             // Generate QR code
-            QRCode.toCanvas(qrElement, currentUrl, {
+            QRCode.toCanvas(qrElement, arUrl, {
                 width: 180,
                 margin: 1,
                 color: {
@@ -1594,24 +1851,33 @@
                     break;
                 case 'svg':
                     // For SVG, we need to generate it separately
-                    const currentUrl = window.location.href;
-                    const svgContent = `
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-                            <rect width="100%" height="100%" fill="white"/>
-                            ${generateQRCodeSvgPath(currentUrl)}
-                        </svg>
-                    `;
+                    const modelUrl = encodeURIComponent(document.getElementById('model-url').value);
+                    const targetUrl = encodeURIComponent(document.getElementById('target-url').value);
+                    const currentUrl = window.location.href.split('?')[0];
+                    const arUrl = `${currentUrl}?ar=true&model=${modelUrl}&target=${targetUrl}`;
                     
-                    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `ar-experience.${extension}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                    QRCode.toString(arUrl, {
+                        type: 'svg',
+                        width: 300,
+                        margin: 1,
+                        color: {
+                            dark: '#000000',
+                            light: '#ffffff'
+                        }
+                    }, function (error, svg) {
+                        if (error) console.error(error);
+                        
+                        const blob = new Blob([svg], { type: 'image/svg+xml' });
+                        const url = URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `ar-experience.svg`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    });
                     return;
                 default:
                     mimeType = 'image/png';
@@ -1625,13 +1891,6 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        }
-        
-        // Helper function to generate SVG path for QR code
-        function generateQRCodeSvgPath(text) {
-            // This is a simplified version - in a real implementation, 
-            // you would use a proper QR code library that can generate SVG paths
-            return `<path d="M20,20h140v140H20V20z M40,40h100v100H40V40z" fill="black"/>`;
         }
     </script>
 </body>
