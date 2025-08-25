@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebAR Experience - Intuitive 3D & AR Editor</title>
+    <title>WebAR Experience - QR Code & AR Editor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <style>
         :root {
@@ -46,12 +43,11 @@
         }
         
         .container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            min-height: calc(100vh - 40px);
         }
         
         header {
@@ -245,7 +241,7 @@
         
         .preview-wrapper {
             width: 100%;
-            height: 100%;
+            height: 400px;
             background: rgba(15, 23, 42, 0.5);
             border-radius: 12px;
             overflow: hidden;
@@ -324,96 +320,6 @@
             color: var(--primary);
         }
         
-        .primitive-form {
-            background: rgba(30, 30, 46, 0.6);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 10px;
-        }
-        
-        .primitive-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .primitive-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            padding: 10px 0;
-            flex-wrap: wrap;
-        }
-        
-        .toolbar-group {
-            display: flex;
-            gap: 8px;
-            background: rgba(30, 30, 46, 0.6);
-            padding: 8px;
-            border-radius: 10px;
-            border: 1px solid var(--card-border);
-        }
-        
-        .toolbar-button {
-            padding: 8px 12px;
-            background: rgba(30, 30, 46, 0.6);
-            color: #c7d2fe;
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-        }
-        
-        .toolbar-button:hover {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: var(--primary);
-        }
-        
-        .toolbar-button.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .history-buttons {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .history-button {
-            padding: 8px;
-            min-width: 40px;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 15px;
-            color: var(--gray);
-            font-size: 14px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--card-border);
-            margin-top: auto;
-        }
-        
-        /* QR Code Section */
         .qr-section {
             background: rgba(30, 30, 46, 0.6);
             border-radius: 12px;
@@ -436,6 +342,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 220px;
+            min-width: 220px;
         }
         
         .qr-download-options {
@@ -489,124 +397,57 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Scene Objects Panel */
-        .scene-objects {
-            margin-top: 20px;
-            background: rgba(30, 30, 46, 0.6);
-            border-radius: 12px;
-            padding: 16px;
-        }
-        
-        .scene-header {
+        .toolbar {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .object-list {
-            max-height: 200px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
             gap: 10px;
+            padding: 10px 0;
+            flex-wrap: wrap;
         }
         
-        .object-item {
-            background: rgba(30, 30, 46, 0.8);
-            border-radius: 10px;
-            padding: 12px 15px;
+        .toolbar-group {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
+            gap: 8px;
+            background: rgba(30, 30, 46, 0.6);
+            padding: 8px;
+            border-radius: 10px;
             border: 1px solid var(--card-border);
         }
         
-        .object-item.selected {
-            background: rgba(99, 102, 241, 0.3);
+        .toolbar-button {
+            padding: 8px 12px;
+            background: rgba(30, 30, 46, 0.6);
+            color: #c7d2fe;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        
+        .toolbar-button:hover {
+            background: rgba(99, 102, 241, 0.2);
             border-color: var(--primary);
         }
         
-        .object-name {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .object-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            background: rgba(99, 102, 241, 0.2);
-        }
-        
-        .object-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .object-btn {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            background: rgba(30, 30, 46, 0.8);
-            border: 1px solid var(--card-border);
-            color: var(--light);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .object-btn:hover {
-            background: rgba(99, 102, 241, 0.3);
-        }
-        
-        .object-btn.delete:hover {
-            background: var(--danger);
-        }
-        
-        .object-btn.duplicate:hover {
-            background: var(--success);
-        }
-        
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
-            background: rgba(30, 30, 46, 0.6);
-            border-radius: 12px;
-            padding: 5px;
-        }
-        
-        .tab {
-            padding: 10px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-            flex: 1;
-            text-align: center;
-        }
-        
-        .tab.active {
+        .toolbar-button.active {
             background: var(--primary);
+            color: white;
+            border-color: var(--primary);
         }
         
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: var(--gray);
+            font-size: 14px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            margin-top: 20px;
         }
         
         /* AR Viewer */
@@ -694,26 +535,10 @@
             .preview-box {
                 height: 500px;
             }
-            
-            .primitive-grid {
-                grid-template-columns: 1fr;
-            }
         }
         
         @media (max-width: 600px) {
             .input-row {
-                flex-direction: column;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-            
-            .primitive-actions {
-                flex-direction: column;
-            }
-            
-            .toolbar {
                 flex-direction: column;
             }
             
@@ -751,140 +576,54 @@
         
         <div class="main-content">
             <div class="panel">
-                <div class="tabs">
-                    <div class="tab active" data-tab="resources">Resources</div>
-                    <div class="tab" data-tab="primitives">Primitives</div>
-                    <div class="tab" data-tab="objects">Objects</div>
+                <h2><i class="fas fa-cloud-upload-alt"></i> 3D Resources</h2>
+                
+                <div class="input-group">
+                    <label for="model-input">3D Model (GLB Format)</label>
+                    <div class="input-row">
+                        <input type="text" id="model-url" placeholder="Enter GLB URL or select file" value="https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Duck/glTF/Duck.gltf">
+                        <button id="model-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
+                    </div>
+                    <input type="file" id="model-file" accept=".glb,.gltf" hidden>
                 </div>
                 
-                <div class="tab-content active" id="resources-tab">
-                    <h2><i class="fas fa-cloud-upload-alt"></i> 3D Resources</h2>
-                    
-                    <div class="input-group">
-                        <label for="model-input">3D Model (GLB Format)</label>
-                        <div class="input-row">
-                            <input type="text" id="model-url" placeholder="Enter GLB URL or select file" value="https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Duck/glTF/Duck.gltf">
-                            <button id="model-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
-                        </div>
-                        <input type="file" id="model-file" accept=".glb,.gltf" hidden>
+                <div class="input-group">
+                    <label for="target-input">AR Target File (.mind)</label>
+                    <div class="input-row">
+                        <input type="text" id="target-url" placeholder="Enter .mind file URL" value="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/examples/assets/card-example/card.mind">
+                        <button id="target-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
                     </div>
-                    
-                    <div class="input-group">
-                        <label for="target-input">AR Target File (.mind)</label>
-                        <div class="input-row">
-                            <input type="text" id="target-url" placeholder="Enter .mind file URL" value="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/examples/assets/card-example/card.mind">
-                            <button id="target-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
-                        </div>
-                        <input type="file" id="target-file" accept=".mind" hidden>
-                    </div>
-                    
-                    <div class="qr-section">
-                        <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
-                        <p>Generate a QR code to share your AR experience.</p>
-                        
-                        <div class="qr-container">
-                            <div id="qrcode"></div>
-                            
-                            <div class="qr-download-options">
-                                <button id="download-png" class="download-btn">
-                                    <i class="fas fa-download"></i> PNG
-                                </button>
-                                <button id="download-jpg" class="download-btn">
-                                    <i class="fas fa-download"></i> JPG
-                                </button>
-                                <button id="download-svg" class="download-btn">
-                                    <i class="fas fa-download"></i> SVG
-                                </button>
-                            </div>
-                            
-                            <div class="google-lens-info">
-                                <i class="fab fa-google"></i>
-                                <span>Scan with Google Lens to launch AR</span>
-                            </div>
-                        </div>
-                    </div>
+                    <input type="file" id="target-file" accept=".mind" hidden>
                 </div>
                 
-                <div class="tab-content" id="primitives-tab">
-                    <h2><i class="fas fa-cube"></i> Create 3D Primitive</h2>
-                    <div class="primitive-form">
-                        <div class="input-group">
-                            <label for="primitive-type">Primitive Type</label>
-                            <select id="primitive-type">
-                                <option value="box">Box</option>
-                                <option value="sphere">Sphere</option>
-                                <option value="cylinder">Cylinder</option>
-                                <option value="cone">Cone</option>
-                                <option value="torus">Torus</option>
-                            </select>
-                        </div>
-                        
-                        <div class="primitive-grid">
-                            <div class="input-group">
-                                <label for="primitive-width">Width</label>
-                                <input type="number" id="primitive-width" value="1" min="0.1" step="0.1">
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="primitive-height">Height</label>
-                                <input type="number" id="primitive-height" value="1" min="0.1" step="0.1">
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="primitive-depth">Depth</label>
-                                <input type="number" id="primitive-depth" value="1" min="0.1" step="0.1">
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="primitive-radius">Radius</label>
-                                <input type="number" id="primitive-radius" value="0.5" min="0.1" step="0.1">
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="width-segments">Width Segments</label>
-                                <input type="number" id="width-segments" value="8" min="1" max="32">
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="height-segments">Height Segments</label>
-                                <input type="number" id="height-segments" value="8" min="1" max="32">
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="depth-segments">Depth Segments</label>
-                                <input type="number" id="depth-segments" value="1" min="1" max="16">
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="primitive-color">Color</label>
-                                <input type="color" id="primitive-color" value="#6366f1">
+                <div class="qr-section">
+                    <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
+                    <p>Generate a QR code to share your AR experience.</p>
+                    
+                    <div class="qr-container">
+                        <div id="qrcode">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-qrcode" style="font-size: 64px; color: #4f46e5;"></i>
+                                <h3>QR Code Preview</h3>
+                                <p>Click "Generate QR Code" to create your QR</p>
                             </div>
                         </div>
                         
-                        <div class="primitive-actions">
-                            <button id="add-primitive" class="success">
-                                <i class="fas fa-plus-circle"></i> Add Primitive
+                        <div class="qr-download-options">
+                            <button id="download-png" class="download-btn">
+                                <i class="fas fa-download"></i> PNG
                             </button>
-                            <button id="clear-primitives" class="warning">
-                                <i class="fas fa-trash-alt"></i> Clear All
+                            <button id="download-jpg" class="download-btn">
+                                <i class="fas fa-download"></i> JPG
+                            </button>
+                            <button id="download-svg" class="download-btn">
+                                <i class="fas fa-download"></i> SVG
                             </button>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="tab-content" id="objects-tab">
-                    <div class="scene-objects">
-                        <div class="scene-header">
-                            <h3><i class="fas fa-cubes"></i> Scene Objects</h3>
-                            <span id="object-count">0 objects</span>
-                        </div>
-                        <div class="object-list" id="object-list">
-                            <div class="object-item empty">
-                                <div class="object-name">
-                                    <i class="fas fa-info-circle"></i>
-                                    <span>No objects in scene</span>
-                                </div>
-                            </div>
+                        
+                        <div class="google-lens-info">
+                            <i class="fab fa-google"></i>
+                            <span>Scan with Google Lens to launch AR</span>
                         </div>
                     </div>
                 </div>
@@ -894,7 +633,6 @@
                     <ul>
                         <li>Upload a GLB model or provide a URL</li>
                         <li>Provide a .mind file for AR image tracking</li>
-                        <li>Create custom 3D primitives with the editor</li>
                         <li>Generate a QR code to share your AR experience</li>
                         <li>Click "Start AR" to launch augmented reality</li>
                     </ul>
@@ -906,34 +644,15 @@
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h2>
                             <i class="fas fa-cube"></i>
-                            3D Model & Primitive Editor
+                            3D Model Preview
                         </h2>
                         <div class="toolbar">
                             <div class="toolbar-group">
-                                <button id="translate-btn" class="toolbar-button active">
-                                    <i class="fas fa-arrows-alt"></i> Move
+                                <button id="reset-model">
+                                    <i class="fas fa-sync-alt"></i> Reset View
                                 </button>
-                                <button id="rotate-btn" class="toolbar-button">
-                                    <i class="fas fa-sync-alt"></i> Rotate
-                                </button>
-                                <button id="scale-btn" class="toolbar-button">
-                                    <i class="fas fa-expand-alt"></i> Scale
-                                </button>
-                            </div>
-                            <div class="toolbar-group history-buttons">
-                                <button id="undo-btn" class="toolbar-button" title="Undo">
-                                    <i class="fas fa-undo"></i>
-                                </button>
-                                <button id="redo-btn" class="toolbar-button" title="Redo">
-                                    <i class="fas fa-redo"></i>
-                                </button>
-                            </div>
-                            <div class="toolbar-group">
-                                <button id="delete-btn" class="toolbar-button" title="Delete Selected">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                                <button id="duplicate-btn" class="toolbar-button" title="Duplicate Selected">
-                                    <i class="fas fa-copy"></i> Duplicate
+                                <button id="center-model" class="secondary">
+                                    <i class="fas fa-crosshairs"></i> Center Model
                                 </button>
                             </div>
                         </div>
@@ -942,20 +661,29 @@
                         <div id="model-preview"></div>
                         <div id="model-placeholder" class="preview-placeholder">
                             <i class="fas fa-cube" style="font-size: 64px; color: #4f46e5;"></i>
-                            <h3>3D Editor Workspace</h3>
-                            <p>Upload a 3D model or create a primitive to begin editing</p>
-                            <p>Use the toolbar to move, rotate, and scale objects</p>
+                            <h3>3D Preview Workspace</h3>
+                            <p>Upload a 3D model to begin</p>
                         </div>
                     </div>
-                    <div class="controls">
-                        <button id="reset-model">
-                            <i class="fas fa-sync-alt"></i>
-                            Reset View
-                        </button>
-                        <button id="center-model" class="secondary">
-                            <i class="fas fa-crosshairs"></i>
-                            Center Model
-                        </button>
+                </div>
+                
+                <div class="preview-box">
+                    <h2>
+                        <i class="fas fa-vr-cardboard"></i>
+                        AR Experience Preview
+                    </h2>
+                    <div style="background: rgba(30, 30, 46, 0.6); border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                            <img src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/examples/assets/card-example/card.png" alt="AR Target" style="max-width: 200px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                        </div>
+                        <p style="text-align: center; color: #c7d2fe; margin-bottom: 20px;">
+                            Print or display this target image. Point your camera at it to view the AR experience.
+                        </p>
+                        <div style="display: flex; justify-content: center;">
+                            <button id="print-target" class="secondary">
+                                <i class="fas fa-print"></i> Print Target
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -979,39 +707,11 @@
     </div>
     
     <script>
-        // Global variables
-        let modelScene, modelCamera, modelRenderer, modelControls;
-        let transformControls;
-        let currentModel = null;
-        let primitives = [];
-        let selectedObject = null;
-        let currentMode = 'translate';
-        let objectCounter = 1;
-        
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
             initModelPreview();
             setupEventListeners();
-            setupPrimitiveUI();
-            setupTabs();
             generateQRCode(); // Generate initial QR code
-            
-            // Check if we're in AR mode from URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('ar') === 'true') {
-                const modelUrl = urlParams.get('model') || document.getElementById('model-url').value;
-                const targetUrl = urlParams.get('target') || document.getElementById('target-url').value;
-                
-                document.getElementById('model-url').value = modelUrl;
-                document.getElementById('target-url').value = targetUrl;
-                
-                // Load the model and start AR
-                loadModel(modelUrl, () => {
-                    setTimeout(() => {
-                        startAR();
-                    }, 1000);
-                });
-            }
         });
         
         // Initialize 3D model preview
@@ -1019,148 +719,72 @@
             const container = document.getElementById('model-preview');
             
             // Create scene
-            modelScene = new THREE.Scene();
-            modelScene.background = new THREE.Color(0x0f172a);
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
             
             // Create camera
-            modelCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            modelCamera.position.z = 5;
+            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
             
             // Create renderer
-            modelRenderer = new THREE.WebGLRenderer({ antialias: true });
-            modelRenderer.setSize(container.clientWidth, container.clientHeight);
-            modelRenderer.setPixelRatio(window.devicePixelRatio);
-            modelRenderer.shadowMap.enabled = true;
-            container.appendChild(modelRenderer.domElement);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
             
             // Add lights
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            modelScene.add(ambientLight);
+            scene.add(ambientLight);
             
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(2, 3, 4);
             directionalLight.castShadow = true;
-            modelScene.add(directionalLight);
+            scene.add(directionalLight);
             
             const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
             backLight.position.set(-2, -1, -3);
-            modelScene.add(backLight);
+            scene.add(backLight);
             
             // Add grid helper
             const gridHelper = new THREE.GridHelper(20, 20, 0x4f46e5, 0x4f46e5);
             gridHelper.material.opacity = 0.15;
             gridHelper.material.transparent = true;
             gridHelper.position.y = -2;
-            modelScene.add(gridHelper);
+            scene.add(gridHelper);
             
             // Add orbit controls
-            modelControls = new THREE.OrbitControls(modelCamera, modelRenderer.domElement);
-            modelControls.enableDamping = true;
-            modelControls.dampingFactor = 0.05;
-            modelControls.screenSpacePanning = true;
-            
-            // Add transform controls
-            transformControls = new THREE.TransformControls(modelCamera, modelRenderer.domElement);
-            transformControls.addEventListener('dragging-changed', function(event) {
-                modelControls.enabled = !event.value;
-            });
-            modelScene.add(transformControls);
-            
-            // Handle object selection
-            modelRenderer.domElement.addEventListener('click', (event) => {
-                const mouse = new THREE.Vector2();
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-                
-                const raycaster = new THREE.Raycaster();
-                raycaster.setFromCamera(mouse, modelCamera);
-                
-                const intersects = raycaster.intersectObjects(modelScene.children, true);
-                
-                if (intersects.length > 0) {
-                    const object = intersects[0].object;
-                    
-                    // Don't select lights or helpers
-                    if (object.isLight || object.isAxesHelper || object.isGridHelper) return;
-                    
-                    selectObject(object);
-                    updateObjectList();
-                } else {
-                    deselectObject();
-                    updateObjectList();
-                }
-            });
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = true;
             
             // Animation loop
             function animate() {
                 requestAnimationFrame(animate);
-                modelControls.update();
-                modelRenderer.render(modelScene, modelCamera);
+                controls.update();
+                renderer.render(scene, camera);
             }
             
             animate();
             
             // Handle window resize
             window.addEventListener('resize', () => {
-                modelCamera.aspect = container.clientWidth / container.clientHeight;
-                modelCamera.updateProjectionMatrix();
-                modelRenderer.setSize(container.clientWidth, container.clientHeight);
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
             });
             
             // Load default model
-            loadModel(document.getElementById('model-url').value);
-        }
-        
-        // Set up tabs
-        function setupTabs() {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Remove active class from all tabs and contents
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    tab.classList.add('active');
-                    
-                    // Show corresponding content
-                    const tabId = tab.getAttribute('data-tab');
-                    document.getElementById(`${tabId}-tab`).classList.add('active');
-                });
+            loadModel(document.getElementById('model-url').value, scene, () => {
+                document.getElementById('model-placeholder').style.display = 'none';
             });
-        }
-        
-        // Select an object
-        function selectObject(object) {
-            if (selectedObject === object) return;
             
-            deselectObject();
-            selectedObject = object;
-            transformControls.attach(selectedObject);
-            
-            // Highlight selected object
-            if (selectedObject.material) {
-                selectedObject.userData.originalMaterial = selectedObject.material;
-                const highlightMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xffff00,
-                    emissive: 0x444400,
-                    shininess: 100
-                });
-                selectedObject.material = highlightMaterial;
-            }
-            
-            updateObjectList();
-        }
-        
-        // Deselect current object
-        function deselectObject() {
-            if (selectedObject) {
-                if (selectedObject.userData.originalMaterial) {
-                    selectedObject.material = selectedObject.userData.originalMaterial;
-                }
-                transformControls.detach();
-                selectedObject = null;
-            }
+            // Store references for later use
+            window.modelScene = scene;
+            window.modelCamera = camera;
+            window.modelRenderer = renderer;
+            window.modelControls = controls;
         }
         
         // Set up event listeners
@@ -1175,13 +799,17 @@
                 if (file) {
                     const url = URL.createObjectURL(file);
                     document.getElementById('model-url').value = url;
-                    loadModel(url);
+                    loadModel(url, window.modelScene, () => {
+                        document.getElementById('model-placeholder').style.display = 'none';
+                    });
                 }
             });
             
             document.getElementById('model-url').addEventListener('change', (e) => {
                 if (e.target.value) {
-                    loadModel(e.target.value);
+                    loadModel(e.target.value, window.modelScene, () => {
+                        document.getElementById('model-placeholder').style.display = 'none';
+                    });
                 }
             });
             
@@ -1199,24 +827,31 @@
             });
             
             // Reset buttons
-            document.getElementById('reset-model').addEventListener('click', resetModelView);
-            document.getElementById('center-model').addEventListener('click', centerModel);
+            document.getElementById('reset-model').addEventListener('click', () => {
+                if (window.modelControls) {
+                    window.modelCamera.position.set(0, 0, 5);
+                    window.modelCamera.lookAt(0, 0, 0);
+                    window.modelControls.reset();
+                }
+            });
+            
+            document.getElementById('center-model').addEventListener('click', () => {
+                centerModel(window.modelScene, window.modelCamera, window.modelControls);
+            });
             
             // Start AR button
             document.getElementById('start-ar').addEventListener('click', startAR);
-            
-            // Toolbar buttons
-            document.getElementById('translate-btn').addEventListener('click', () => setTransformMode('translate'));
-            document.getElementById('rotate-btn').addEventListener('click', () => setTransformMode('rotate'));
-            document.getElementById('scale-btn').addEventListener('click', () => setTransformMode('scale'));
-            document.getElementById('delete-btn').addEventListener('click', deleteSelected);
-            document.getElementById('duplicate-btn').addEventListener('click', duplicateSelected);
             
             // QR Code buttons
             document.getElementById('generate-qr').addEventListener('click', generateQRCode);
             document.getElementById('download-png').addEventListener('click', () => downloadQRCode('png'));
             document.getElementById('download-jpg').addEventListener('click', () => downloadQRCode('jpg'));
             document.getElementById('download-svg').addEventListener('click', () => downloadQRCode('svg'));
+            
+            // Print target button
+            document.getElementById('print-target').addEventListener('click', () => {
+                window.print();
+            });
             
             // AR back button
             document.getElementById('ar-back').addEventListener('click', () => {
@@ -1225,229 +860,11 @@
             });
         }
         
-        // Set transform mode
-        function setTransformMode(mode) {
-            currentMode = mode;
-            transformControls.setMode(mode);
-            
-            // Update UI
-            document.querySelectorAll('.toolbar-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(`${mode}-btn`).classList.add('active');
-        }
-        
-        // Delete selected object
-        function deleteSelected() {
-            if (selectedObject) {
-                // Remove from scene
-                modelScene.remove(selectedObject);
-                
-                // Remove from primitives array if it's a primitive
-                const index = primitives.indexOf(selectedObject);
-                if (index !== -1) {
-                    primitives.splice(index, 1);
-                }
-                
-                // If it's the model
-                if (currentModel === selectedObject) {
-                    currentModel = null;
-                }
-                
-                deselectObject();
-                updateObjectList();
-                
-                // Show placeholder if no objects
-                if (!currentModel && primitives.length === 0) {
-                    document.getElementById('model-placeholder').style.display = 'flex';
-                }
-            }
-        }
-        
-        // Duplicate selected object
-        function duplicateSelected() {
-            if (selectedObject) {
-                // Clone the object
-                const clone = selectedObject.clone();
-                
-                // Position it slightly offset
-                clone.position.x += 0.5;
-                clone.position.y += 0.5;
-                
-                // Add to scene
-                modelScene.add(clone);
-                
-                // If it's a primitive, add to primitives array
-                if (primitives.includes(selectedObject)) {
-                    primitives.push(clone);
-                }
-                
-                // Set new name
-                clone.userData.name = `${selectedObject.userData.name} Copy`;
-                
-                // Select the new object
-                selectObject(clone);
-                updateObjectList();
-            }
-        }
-        
-        // Set up primitive UI
-        function setupPrimitiveUI() {
-            const primitiveType = document.getElementById('primitive-type');
-            
-            // Update UI based on primitive type
-            primitiveType.addEventListener('change', () => {
-                updatePrimitiveUI();
-            });
-            
-            // Add primitive button
-            document.getElementById('add-primitive').addEventListener('click', addPrimitive);
-            
-            // Clear primitives button
-            document.getElementById('clear-primitives').addEventListener('click', clearPrimitives);
-            
-            // Initialize UI
-            updatePrimitiveUI();
-        }
-        
-        // Update primitive UI based on selected type
-        function updatePrimitiveUI() {
-            const type = document.getElementById('primitive-type').value;
-            const widthInput = document.getElementById('primitive-width');
-            const heightInput = document.getElementById('primitive-height');
-            const depthInput = document.getElementById('primitive-depth');
-            const radiusInput = document.getElementById('primitive-radius');
-            
-            // Reset all inputs
-            widthInput.disabled = false;
-            heightInput.disabled = false;
-            depthInput.disabled = false;
-            radiusInput.disabled = false;
-            
-            // Update labels based on primitive type
-            switch(type) {
-                case 'box':
-                    widthInput.parentNode.querySelector('label').textContent = 'Width';
-                    heightInput.parentNode.querySelector('label').textContent = 'Height';
-                    depthInput.parentNode.querySelector('label').textContent = 'Depth';
-                    radiusInput.disabled = true;
-                    break;
-                case 'sphere':
-                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
-                    heightInput.parentNode.querySelector('label').textContent = 'Width Segments';
-                    depthInput.parentNode.querySelector('label').textContent = 'Height Segments';
-                    radiusInput.disabled = true;
-                    break;
-                case 'cylinder':
-                    widthInput.parentNode.querySelector('label').textContent = 'Radius Top';
-                    heightInput.parentNode.querySelector('label').textContent = 'Radius Bottom';
-                    depthInput.parentNode.querySelector('label').textContent = 'Height';
-                    radiusInput.disabled = true;
-                    break;
-                case 'cone':
-                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
-                    heightInput.parentNode.querySelector('label').textContent = 'Height';
-                    depthInput.parentNode.querySelector('label').textContent = 'Radial Segments';
-                    radiusInput.disabled = true;
-                    break;
-                case 'torus':
-                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
-                    heightInput.parentNode.querySelector('label').textContent = 'Tube';
-                    depthInput.parentNode.querySelector('label').textContent = 'Radial Segments';
-                    radiusInput.parentNode.querySelector('label').textContent = 'Tubular Segments';
-                    break;
-            }
-        }
-        
-        // Add primitive to scene
-        function addPrimitive() {
-            const type = document.getElementById('primitive-type').value;
-            const width = parseFloat(document.getElementById('primitive-width').value);
-            const height = parseFloat(document.getElementById('primitive-height').value);
-            const depth = parseFloat(document.getElementById('primitive-depth').value);
-            const radius = parseFloat(document.getElementById('primitive-radius').value);
-            const widthSegs = parseInt(document.getElementById('width-segments').value);
-            const heightSegs = parseInt(document.getElementById('height-segments').value);
-            const depthSegs = parseInt(document.getElementById('depth-segments').value);
-            const color = document.getElementById('primitive-color').value;
-            
-            let geometry, material, mesh;
-            
-            material = new THREE.MeshPhongMaterial({
-                color: color,
-                shininess: 80,
-                side: THREE.DoubleSide
-            });
-            
-            const params = {
-                width, height, depth, radius, 
-                widthSegs, heightSegs, depthSegs,
-                radialSegments: widthSegs,
-                tubularSegments: depthSegs
-            };
-            
-            switch(type) {
-                case 'box':
-                    geometry = new THREE.BoxGeometry(width, height, depth, widthSegs, heightSegs, depthSegs);
-                    break;
-                case 'sphere':
-                    geometry = new THREE.SphereGeometry(width, heightSegs, depthSegs);
-                    break;
-                case 'cylinder':
-                    geometry = new THREE.CylinderGeometry(width, height, depth, widthSegs);
-                    break;
-                case 'cone':
-                    geometry = new THREE.ConeGeometry(width, height, depthSegs);
-                    break;
-                case 'torus':
-                    geometry = new THREE.TorusGeometry(width, height, depthSegs, depth);
-                    break;
-                default:
-                    geometry = new THREE.BoxGeometry(1, 1, 1);
-            }
-            
-            mesh = new THREE.Mesh(geometry, material);
-            mesh.position.set(0, 0, 0);
-            mesh.userData.type = type;
-            mesh.userData.params = params;
-            mesh.userData.name = `Primitive ${objectCounter++}`;
-            
-            modelScene.add(mesh);
-            primitives.push(mesh);
-            
-            // Hide placeholder
-            document.getElementById('model-placeholder').style.display = 'none';
-            
-            // Select the new primitive
-            selectObject(mesh);
-            updateObjectList();
-            
-            // Center the primitive
-            centerModel();
-        }
-        
-        // Clear all primitives
-        function clearPrimitives() {
-            for (const primitive of primitives) {
-                modelScene.remove(primitive);
-            }
-            primitives = [];
-            
-            // Show placeholder if no model is loaded
-            if (!currentModel) {
-                document.getElementById('model-placeholder').style.display = 'flex';
-            }
-            
-            deselectObject();
-            updateObjectList();
-        }
-        
         // Load 3D model
-        function loadModel(url, callback) {
-            // Remove existing model
-            if (currentModel) {
-                modelScene.remove(currentModel);
-                currentModel = null;
+        function loadModel(url, scene, callback) {
+            // Remove existing model if any
+            if (window.currentModel) {
+                scene.remove(window.currentModel);
             }
             
             // Show loading indicator
@@ -1470,16 +887,12 @@
                 url,
                 (gltf) => {
                     const model = gltf.scene;
-                    modelScene.add(model);
+                    scene.add(model);
                     
                     // Center and scale model
-                    centerModel(model);
+                    centerModel(scene, window.modelCamera, window.modelControls, model);
                     
-                    currentModel = model;
-                    currentModel.userData.name = "3D Model";
-                    document.getElementById('model-placeholder').style.display = 'none';
-                    updateObjectList();
-                    
+                    window.currentModel = model;
                     if (callback) callback();
                 },
                 undefined,
@@ -1502,7 +915,7 @@
         }
         
         // Center model in view
-        function centerModel(model = currentModel) {
+        function centerModel(scene, camera, controls, model = window.currentModel) {
             if (!model) return;
             
             const box = new THREE.Box3().setFromObject(model);
@@ -1517,18 +930,9 @@
             const scale = 5 / maxDim;
             model.scale.set(scale, scale, scale);
             
-            modelCamera.position.set(0, 0, 5);
-            modelCamera.lookAt(0, 0, 0);
-            modelControls.update();
-        }
-        
-        // Reset model view
-        function resetModelView() {
-            if (!modelControls) return;
-            
-            modelCamera.position.set(0, 0, 5);
-            modelCamera.lookAt(0, 0, 0);
-            modelControls.reset();
+            camera.position.set(0, 0, 5);
+            camera.lookAt(0, 0, 0);
+            controls.update();
         }
         
         // Start AR experience
@@ -1536,8 +940,8 @@
             const modelUrl = document.getElementById('model-url').value;
             const targetUrl = document.getElementById('target-url').value;
             
-            if (!modelUrl && primitives.length === 0) {
-                alert('Please upload a 3D model or create a primitive first');
+            if (!modelUrl) {
+                alert('Please upload a 3D model or provide a URL first');
                 return;
             }
             
@@ -1590,8 +994,8 @@
             scene.add(gridHelper);
             
             // Add the 3D model to the AR scene
-            if (currentModel) {
-                const modelClone = currentModel.clone();
+            if (window.currentModel) {
+                const modelClone = window.currentModel.clone();
                 scene.add(modelClone);
                 
                 // Position the model in the center
@@ -1606,14 +1010,6 @@
                 }
                 animateModel();
             }
-            
-            // Add primitives to the AR scene
-            primitives.forEach(primitive => {
-                const primitiveClone = primitive.clone();
-                primitiveClone.position.x = (Math.random() - 0.5) * 3;
-                primitiveClone.position.z = (Math.random() - 0.5) * 3;
-                scene.add(primitiveClone);
-            });
             
             // Add lights
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -1695,118 +1091,6 @@
             return texture;
         }
         
-        // Update object list
-        function updateObjectList() {
-            const objectList = document.getElementById('object-list');
-            objectList.innerHTML = '';
-            
-            let allObjects = [];
-            
-            // Add model if exists
-            if (currentModel) {
-                allObjects.push(currentModel);
-            }
-            
-            // Add primitives
-            allObjects = allObjects.concat(primitives);
-            
-            // Update count
-            document.getElementById('object-count').textContent = `${allObjects.length} object${allObjects.length !== 1 ? 's' : ''}`;
-            
-            if (allObjects.length === 0) {
-                objectList.innerHTML = `
-                    <div class="object-item empty">
-                        <div class="object-name">
-                            <i class="fas fa-info-circle"></i>
-                            <span>No objects in scene</span>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Create list items
-            allObjects.forEach(object => {
-                const isSelected = object === selectedObject;
-                const isModel = object === currentModel;
-                
-                const item = document.createElement('div');
-                item.className = `object-item ${isSelected ? 'selected' : ''}`;
-                item.innerHTML = `
-                    <div class="object-name" data-id="${object.id}">
-                        <div class="object-icon">
-                            <i class="fas ${isModel ? 'fa-cube' : 'fa-shapes'}"></i>
-                        </div>
-                        <span>${object.userData.name || 'Object'}</span>
-                    </div>
-                    <div class="object-actions">
-                        <div class="object-btn duplicate" title="Duplicate">
-                            <i class="fas fa-copy"></i>
-                        </div>
-                        <div class="object-btn delete" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </div>
-                    </div>
-                `;
-                
-                // Add click event to select
-                item.querySelector('.object-name').addEventListener('click', () => {
-                    selectObject(object);
-                });
-                
-                // Add delete event
-                item.querySelector('.object-btn.delete').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    modelScene.remove(object);
-                    
-                    // Remove from primitives if it's a primitive
-                    const index = primitives.indexOf(object);
-                    if (index !== -1) {
-                        primitives.splice(index, 1);
-                    }
-                    
-                    // If it's the model
-                    if (currentModel === object) {
-                        currentModel = null;
-                    }
-                    
-                    if (selectedObject === object) {
-                        deselectObject();
-                    }
-                    
-                    updateObjectList();
-                });
-                
-                // Add duplicate event
-                item.querySelector('.object-btn.duplicate').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    // Clone the object
-                    const clone = object.clone();
-                    
-                    // Position it slightly offset
-                    clone.position.x += 0.5;
-                    clone.position.y += 0.5;
-                    
-                    // Add to scene
-                    modelScene.add(clone);
-                    
-                    // If it's a primitive, add to primitives array
-                    if (primitives.includes(object)) {
-                        primitives.push(clone);
-                    }
-                    
-                    // Set new name
-                    clone.userData.name = `${object.userData.name} Copy`;
-                    
-                    // Select the new object
-                    selectObject(clone);
-                    updateObjectList();
-                });
-                
-                objectList.appendChild(item);
-            });
-        }
-        
         // Generate QR Code
         function generateQRCode() {
             const qrElement = document.getElementById('qrcode');
@@ -1830,13 +1114,30 @@
                 }
             }, function (error) {
                 if (error) console.error(error);
+                else {
+                    // Add success message
+                    const successMsg = document.createElement('div');
+                    successMsg.style.color = '#22c55e';
+                    successMsg.style.marginTop = '10px';
+                    successMsg.style.fontSize = '14px';
+                    successMsg.innerHTML = '<i class="fas fa-check-circle"></i> QR Code generated successfully!';
+                    qrElement.parentNode.appendChild(successMsg);
+                    
+                    // Remove message after 3 seconds
+                    setTimeout(() => {
+                        successMsg.remove();
+                    }, 3000);
+                }
             });
         }
         
         // Download QR Code
         function downloadQRCode(format) {
             const canvas = document.querySelector('#qrcode canvas');
-            if (!canvas) return;
+            if (!canvas) {
+                alert('Please generate a QR code first');
+                return;
+            }
             
             let mimeType, extension;
             
@@ -1865,7 +1166,11 @@
                             light: '#ffffff'
                         }
                     }, function (error, svg) {
-                        if (error) console.error(error);
+                        if (error) {
+                            console.error(error);
+                            alert('Error generating SVG QR code');
+                            return;
+                        }
                         
                         const blob = new Blob([svg], { type: 'image/svg+xml' });
                         const url = URL.createObjectURL(blob);
