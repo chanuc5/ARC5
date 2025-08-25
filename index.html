@@ -1,952 +1,1380 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan. See. Connect. - Futuristic 3D Business Cards</title>
-    <meta name="description" content="Create and share interactive 3D business cards that work with WebAR. Scan QR codes to view digital business cards in 3D.">
-    <meta property="og:image" content="https://chanuc5.github.io/ARC5/preview.jpg">
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <title>WebAR Experience - 3D Editor with AR Capabilities</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <style>
         :root {
-            --primary: #00f0ff;
-            --secondary: #ff00e4;
-            --dark: #0a0a15;
-            --darker: #05050a;
-            --light: #f0f0f0;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-highlight: rgba(255, 255, 255, 0.2);
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #8b5cf6;
+            --dark: #1f2937;
+            --dark-light: #374151;
+            --light: #f9fafb;
+            --gray: #9ca3af;
+            --border: #e5e7eb;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --card-bg: rgba(30, 30, 46, 0.7);
+            --card-border: rgba(99, 102, 241, 0.2);
         }
-
-        .light-mode {
-            --dark: #f0f0f0;
-            --darker: #e0e0e0;
-            --light: #0a0a15;
-            --glass: rgba(0, 0, 0, 0.05);
-            --glass-border: rgba(0, 0, 0, 0.1);
-            --glass-highlight: rgba(0, 0, 0, 0.2);
-        }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
         }
-
+        
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--dark);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: var(--light);
             min-height: 100vh;
+            padding: 20px;
             overflow-x: hidden;
         }
-
-        h1, h2, h3, h4 {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            letter-spacing: 1px;
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: calc(100vh - 40px);
         }
-
-        /* Background Animation */
-        #bg-canvas {
-            position: fixed;
+        
+        header {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 15px 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 25px;
+            flex: 1;
+        }
+        
+        .panel {
+            width: 380px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            overflow-y: auto;
+        }
+        
+        .preview-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .preview-box {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+        }
+        
+        h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--light);
+        }
+        
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 16px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--primary-light);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #c7d2fe;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .input-row > * {
+            flex: 1;
+        }
+        
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(30, 30, 46, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            font-size: 14px;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background: rgba(30, 30, 46, 0.8);
+        }
+        
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: rgba(30, 30, 46, 0.6);
+        }
+        
+        button {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+        }
+        
+        button.secondary {
+            background: rgba(30, 30, 46, 0.6);
+            color: var(--primary);
+            border: 1px solid var(--card-border);
+        }
+        
+        button.secondary:hover {
+            background: rgba(30, 30, 46, 0.8);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        button.success {
+            background: var(--success);
+        }
+        
+        button.warning {
+            background: var(--warning);
+        }
+        
+        .preview-wrapper {
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--card-border);
+        }
+        
+        #model-preview {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .preview-placeholder {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            opacity: 0.5;
-        }
-
-        /* Glassmorphism UI */
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .glass-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-        }
-
-        /* Neon UI Elements */
-        .neon-text {
-            text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary);
-            color: var(--primary);
-        }
-
-        .neon-border {
-            border: 1px solid var(--primary);
-            box-shadow: 0 0 10px var(--primary), inset 0 0 10px var(--primary);
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            font-family: 'Orbitron', sans-serif;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: var(--darker);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 240, 255, 0.1);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
-        }
-
-        /* Layout */
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        header {
-            padding: 2rem 0;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            gap: 20px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.7) 100%);
+            text-align: center;
+            padding: 20px;
         }
-
-        .logo {
-            font-size: 1.8rem;
+        
+        .ar-button {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--success) 100%);
+            font-size: 16px;
             font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+        
+        .ar-button:hover {
+            background: linear-gradient(135deg, #0da271 0%, #16a34a 100%);
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 10px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .instructions h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--light);
+            border: none;
+            padding: 0;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        .logo-icon {
-            font-size: 2.2rem;
+        
+        .instructions ul {
+            padding-left: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #c7d2fe;
         }
-
-        /* Hero Section */
-        .hero {
-            min-height: 80vh;
+        
+        .instructions li {
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            text-align: center;
-            position: relative;
-            padding: 4rem 0;
+            gap: 8px;
         }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.5rem, 5vw, 4.5rem);
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2.5rem;
-            line-height: 1.6;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Sections */
-        .section {
-            padding: 6rem 0;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            text-align: center;
-            position: relative;
-            display: inline-block;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .section-title:after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 3px;
-        }
-
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 8px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--light);
-            font-size: 1rem;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
-        }
-
-        /* Model Viewer */
-        model-viewer {
-            width: 100%;
-            height: 500px;
-            background: transparent;
-            --poster-color: transparent;
-            margin: 0 auto;
-        }
-
-        /* QR Code */
-        #qrcode {
-            display: flex;
-            justify-content: center;
-            margin: 2rem 0;
-        }
-
-        #qrcode canvas {
-            border: 10px solid white;
-            border-radius: 10px;
-            background: white;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .tab {
-            padding: 12px 24px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .tab.active {
+        
+        .instructions code {
+            background: rgba(99, 102, 241, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
             color: var(--primary);
         }
-
-        .tab.active:after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--primary);
+        
+        .primitive-form {
+            background: rgba(30, 30, 46, 0.6);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 10px;
         }
-
-        /* Card Preview */
-        .card-preview {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            margin: 2rem 0;
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        /* Background Options */
-        .bg-options {
+        
+        .primitive-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 1rem;
-            margin: 1rem 0;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
         }
-
-        .bg-option {
-            height: 80px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
         }
-
-        .bg-option:hover {
-            transform: scale(1.05);
+        
+        .primitive-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
-
-        .bg-option.selected {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px var(--primary);
-        }
-
-        /* Toolbar */
+        
         .toolbar {
             display: flex;
-            gap: 1rem;
-            margin: 1rem 0;
+            gap: 10px;
+            padding: 10px 0;
             flex-wrap: wrap;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero {
-                min-height: auto;
-                padding: 6rem 0 4rem;
-            }
-            
-            .section {
-                padding: 4rem 0;
-            }
-            
-            .tabs {
+        
+        .toolbar-group {
+            display: flex;
+            gap: 8px;
+            background: rgba(30, 30, 46, 0.6);
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .toolbar-button {
+            padding: 8px 12px;
+            background: rgba(30, 30, 46, 0.6);
+            color: #c7d2fe;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        
+        .toolbar-button:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .toolbar-button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .history-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .history-button {
+            padding: 8px;
+            min-width: 40px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: var(--gray);
+            font-size: 14px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            margin-top: auto;
+        }
+        
+        /* QR Code Section */
+        .qr-section {
+            background: rgba(30, 30, 46, 0.6);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        #qrcode {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .qr-download-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .download-btn {
+            padding: 10px 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .download-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .google-lens-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .google-lens-info i {
+            color: #ea4335;
+            font-size: 20px;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Warning message */
+        .warning-message {
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 10px;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .warning-message h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--light);
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .warning-message ul {
+            padding-left: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #c7d2fe;
+        }
+        
+        .warning-message li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-content {
                 flex-direction: column;
             }
+            
+            .panel {
+                width: 100%;
+            }
+            
+            .preview-box {
+                height: 500px;
+            }
+            
+            .primitive-grid {
+                grid-template-columns: 1fr;
+            }
         }
-
-        /* Dark/Light Toggle */
-        .theme-toggle {
-            width: 50px;
-            height: 26px;
-            background: var(--glass);
-            border-radius: 50px;
-            position: relative;
-            cursor: pointer;
-            border: 1px solid var(--glass-border);
+        
+        @media (max-width: 600px) {
+            .input-row {
+                flex-direction: column;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .primitive-actions {
+                flex-direction: column;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+            }
+            
+            .qr-download-options {
+                flex-direction: column;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
-
-        .theme-toggle:after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: var(--primary);
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .light-mode .theme-toggle:after {
-            left: calc(100% - 22px);
-        }
-
-        /* Utility Classes */
-        .hidden {
-            display: none !important;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .mt-1 { margin-top: 1rem; }
-        .mt-2 { margin-top: 2rem; }
-        .mt-3 { margin-top: 3rem; }
-        .mb-1 { margin-bottom: 1rem; }
-        .mb-2 { margin-bottom: 2rem; }
-        .mb-3 { margin-bottom: 3rem; }
-        .mx-auto { margin-left: auto; margin-right: auto; }
     </style>
 </head>
 <body>
-    <!-- Background Animation -->
-    <canvas id="bg-canvas"></canvas>
-
-    <!-- Main Container -->
     <div class="container">
-        <!-- Header -->
         <header>
-            <a href="#" class="logo" onclick="showSection('home')">
-                <span class="material-icons logo-icon">fingerprint</span>
-                <span>3DCard</span>
-            </a>
-            <div class="theme-toggle" onclick="toggleTheme()"></div>
-        </header>
-
-        <!-- Home Section -->
-        <section id="home-section" class="hero">
-            <div class="hero-content">
-                <h1 class="neon-text">SCAN. SEE. CONNECT.</h1>
-                <p>The future of networking is here. Create your interactive 3D business card that works anywhere with just a QR code scan.</p>
-                <button class="btn btn-primary" onclick="showSection('create')">
-                    <span class="material-icons">add</span> Create Your 3D Card
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <h1>WebAR Experience</h1>
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <button id="generate-qr" class="secondary">
+                    <i class="fas fa-qrcode"></i>
+                    Generate QR Code
+                </button>
+                <button id="start-ar" class="ar-button">
+                    <i class="fas fa-camera"></i>
+                    Start AR Experience
                 </button>
             </div>
-        </section>
-
-        <!-- Create Card Section -->
-        <section id="create-section" class="section hidden">
-            <h2 class="section-title">Create Your Card</h2>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2><i class="fas fa-cloud-upload-alt"></i> 3D Resources</h2>
+                
+                <div class="input-group">
+                    <label for="model-input">3D Model (GLB Format)</label>
+                    <div class="input-row">
+                        <input type="text" id="model-url" placeholder="Enter GLB URL or select file" value="https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Duck/glTF/Duck.gltf">
+                        <button id="model-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
+                    </div>
+                    <input type="file" id="model-file" accept=".glb,.gltf" hidden>
+                </div>
+                
+                <div class="input-group">
+                    <label for="target-input">AR Target File (.mind) - Required for AR</label>
+                    <div class="input-row">
+                        <input type="text" id="target-url" placeholder="Enter .mind file URL">
+                        <button id="target-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
+                    </div>
+                    <input type="file" id="target-file" accept=".mind" hidden>
+                </div>
+                
+                <div class="warning-message">
+                    <h3><i class="fas fa-exclamation-triangle"></i> AR Requirements</h3>
+                    <ul>
+                        <li><i class="fas fa-info-circle"></i> A .mind file is required for AR functionality</li>
+                        <li><i class="fas fa-check-circle"></i> 3D editing works without .mind file</li>
+                        <li><i class="fas fa-check-circle"></i> QR generation works without .mind file</li>
+                    </ul>
+                </div>
+                
+                <h2><i class="fas fa-cube"></i> Create 3D Primitive</h2>
+                <div class="primitive-form">
+                    <div class="input-group">
+                        <label for="primitive-type">Primitive Type</label>
+                        <select id="primitive-type">
+                            <option value="box">Box</option>
+                            <option value="sphere">Sphere</option>
+                            <option value="cylinder">Cylinder</option>
+                            <option value="cone">Cone</option>
+                            <option value="torus">Torus</option>
+                        </select>
+                    </div>
+                    
+                    <div class="primitive-grid">
+                        <div class="input-group">
+                            <label for="primitive-width">Width</label>
+                            <input type="number" id="primitive-width" value="1" min="0.1" step="0.1">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="primitive-height">Height</label>
+                            <input type="number" id="primitive-height" value="1" min="0.1" step="0.1">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="primitive-depth">Depth</label>
+                            <input type="number" id="primitive-depth" value="1" min="0.1" step="0.1">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="primitive-radius">Radius</label>
+                            <input type="number" id="primitive-radius" value="0.5" min="0.1" step="0.1">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="width-segments">Width Segments</label>
+                            <input type="number" id="width-segments" value="8" min="1" max="32">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="height-segments">Height Segments</label>
+                            <input type="number" id="height-segments" value="8" min="1" max="32">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="depth-segments">Depth Segments</label>
+                            <input type="number" id="depth-segments" value="1" min="1" max="16">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="primitive-color">Color</label>
+                            <input type="color" id="primitive-color" value="#6366f1">
+                        </div>
+                    </div>
+                    
+                    <div class="primitive-actions">
+                        <button id="add-primitive" class="success">
+                            <i class="fas fa-plus-circle"></i> Add Primitive
+                        </button>
+                        <button id="clear-primitives" class="warning">
+                            <i class="fas fa-trash-alt"></i> Clear All
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="qr-section">
+                    <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
+                    <p>Generate a QR code to share your 3D experience.</p>
+                    
+                    <div class="qr-container">
+                        <div id="qrcode"></div>
+                        
+                        <div class="qr-download-options">
+                            <button id="download-png" class="download-btn">
+                                <i class="fas fa-download"></i> PNG
+                            </button>
+                            <button id="download-jpg" class="download-btn">
+                                <i class="fas fa-download"></i> JPG
+                            </button>
+                            <button id="download-svg" class="download-btn">
+                                <i class="fas fa-download"></i> SVG
+                            </button>
+                        </div>
+                        
+                        <div class="google-lens-info">
+                            <i class="fab fa-google"></i>
+                            <span>Scan with Google Lens to view 3D experience</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to Use:</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Upload a GLB model or provide a URL</li>
+                        <li><i class="fas fa-check"></i> Create custom 3D primitives with the editor</li>
+                        <li><i class="fas fa-check"></i> Generate a QR code to share your 3D experience</li>
+                        <li><i class="fas fa-exclamation-triangle"></i> For AR: Provide a .mind file for image tracking</li>
+                    </ul>
+                </div>
+            </div>
             
-            <div class="glass-card">
-                <div class="tabs">
-                    <div class="tab active" onclick="switchTab('upload')">Upload</div>
-                    <div class="tab" onclick="switchTab('design')">Design</div>
-                    <div class="tab" onclick="switchTab('preview')">Preview</div>
-                    <div class="tab" onclick="switchTab('publish')">Publish</div>
-                </div>
-                
-                <!-- Upload Tab -->
-                <div id="upload-tab" class="tab-content">
-                    <div class="form-group">
-                        <label for="card-name" class="form-label">Your Name</label>
-                        <input type="text" id="card-name" class="form-control" placeholder="John Doe">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="card-title" class="form-label">Your Title</label>
-                        <input type="text" id="card-title" class="form-control" placeholder="CEO at Example Inc.">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="card-model" class="form-label">3D Model (GLB/GLTF/OBJ)</label>
-                        <input type="file" id="card-model" class="form-control" accept=".glb,.gltf,.obj">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="card-image" class="form-label">Profile Image/Logo</label>
-                        <input type="file" id="card-image" class="form-control" accept="image/*">
-                    </div>
-                    
-                    <button class="btn btn-primary mt-2" onclick="switchTab('design')">
-                        Next: Design <span class="material-icons">arrow_forward</span>
-                    </button>
-                </div>
-                
-                <!-- Design Tab -->
-                <div id="design-tab" class="tab-content hidden">
-                    <div class="form-group">
-                        <label class="form-label">Background Animation</label>
-                        <div class="bg-options">
-                            <div class="bg-option selected" style="background: #000428; background: linear-gradient(to right, #000428, #004e92);" onclick="selectBackground('space')"></div>
-                            <div class="bg-option" style="background: #0f0c29; background: linear-gradient(to right, #0f0c29, #302b63, #24243e);" onclick="selectBackground('matrix')"></div>
-                            <div class="bg-option" style="background: #1a1a1a; background: linear-gradient(to right, #1a1a1a, #434343);" onclick="selectBackground('dark')"></div>
-                            <div class="bg-option" style="background: #ff00cc; background: linear-gradient(to right, #ff00cc, #333399);" onclick="selectBackground('neon')"></div>
-                            <div class="bg-option" style="background: #00c6ff; background: linear-gradient(to right, #00c6ff, #0072ff);" onclick="selectBackground('blue')"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Card Effects</label>
+            <div class="preview-container">
+                <div class="preview-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>
+                            <i class="fas fa-cube"></i>
+                            3D Model & Primitive Editor
+                        </h2>
                         <div class="toolbar">
-                            <button class="btn btn-secondary" onclick="applyEffect('glow')">
-                                <span class="material-icons">flare</span> Glow
-                            </button>
-                            <button class="btn btn-secondary" onclick="applyEffect('hologram')">
-                                <span class="material-icons">filter_drama</span> Hologram
-                            </button>
-                            <button class="btn btn-secondary" onclick="applyEffect('wireframe')">
-                                <span class="material-icons">grid_on</span> Wireframe
-                            </button>
+                            <div class="toolbar-group">
+                                <button id="translate-btn" class="toolbar-button active">
+                                    <i class="fas fa-arrows-alt"></i> Move
+                                </button>
+                                <button id="rotate-btn" class="toolbar-button">
+                                    <i class="fas fa-sync-alt"></i> Rotate
+                                </button>
+                                <button id="scale-btn" class="toolbar-button">
+                                    <i class="fas fa-expand-alt"></i> Scale
+                                </button>
+                            </div>
+                            <div class="toolbar-group">
+                                <button id="delete-btn" class="toolbar-button" title="Delete Selected">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                                <button id="duplicate-btn" class="toolbar-button" title="Duplicate Selected">
+                                    <i class="fas fa-copy"></i> Duplicate
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="card-preview" id="design-preview">
-                        <!-- 3D Preview will be rendered here -->
-                    </div>
-                    
-                    <div class="flex justify-between mt-2">
-                        <button class="btn btn-secondary" onclick="switchTab('upload')">
-                            <span class="material-icons">arrow_back</span> Back
-                        </button>
-                        <button class="btn btn-primary" onclick="switchTab('preview')">
-                            Next: Preview <span class="material-icons">arrow_forward</span>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Preview Tab -->
-                <div id="preview-tab" class="tab-content hidden">
-                    <div class="text-center mb-3">
-                        <h3>Your 3D Business Card</h3>
-                        <p>Rotate and zoom to preview your card</p>
-                    </div>
-                    
-                    <model-viewer 
-                        id="preview-model"
-                        alt="3D Business Card"
-                        auto-rotate
-                        camera-controls
-                        ar
-                        ar-modes="webxr scene-viewer quick-look"
-                        style="width: 100%; height: 500px;"
-                    >
-                        <button slot="ar-button" class="btn btn-primary" style="position: absolute; bottom: 16px; right: 16px;">
-                            <span class="material-icons">view_in_ar</span> View in AR
-                        </button>
-                    </model-viewer>
-                    
-                    <div class="flex justify-between mt-2">
-                        <button class="btn btn-secondary" onclick="switchTab('design')">
-                            <span class="material-icons">arrow_back</span> Back
-                        </button>
-                        <button class="btn btn-primary" onclick="switchTab('publish')">
-                            Next: Publish <span class="material-icons">arrow_forward</span>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Publish Tab -->
-                <div id="publish-tab" class="tab-content hidden">
-                    <div class="text-center mb-3">
-                        <h3>Publish Your Card</h3>
-                        <p>Share your 3D business card with the world</p>
-                    </div>
-                    
-                    <div id="qrcode"></div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Your Card URL</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="card-url" class="form-control" readonly>
-                            <button class="btn btn-secondary" onclick="copyUrl()">
-                                <span class="material-icons">content_copy</span> Copy
-                            </button>
+                    <div class="preview-wrapper">
+                        <div id="model-preview"></div>
+                        <div id="model-placeholder" class="preview-placeholder">
+                            <i class="fas fa-cube" style="font-size: 64px; color: #4f46e5;"></i>
+                            <h3>3D Editor Workspace</h3>
+                            <p>Upload a 3D model or create a primitive to begin editing</p>
+                            <p>Use the toolbar to move, rotate, and scale objects</p>
                         </div>
                     </div>
-                    
-                    <div class="toolbar justify-center">
-                        <button class="btn btn-primary" onclick="downloadQR()">
-                            <span class="material-icons">download</span> Download QR
+                    <div class="controls">
+                        <button id="reset-model">
+                            <i class="fas fa-sync-alt"></i>
+                            Reset View
                         </button>
-                        <button class="btn btn-secondary" onclick="shareCard()">
-                            <span class="material-icons">share</span> Share
-                        </button>
-                        <button class="btn btn-secondary" onclick="generateVCF()">
-                            <span class="material-icons">contact_page</span> VCF
-                        </button>
-                    </div>
-                    
-                    <div class="flex justify-center mt-2">
-                        <button class="btn btn-secondary" onclick="switchTab('preview')">
-                            <span class="material-icons">arrow_back</span> Back
+                        <button id="center-model" class="secondary">
+                            <i class="fas fa-crosshairs"></i>
+                            Center Model
                         </button>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- View Card Section (for QR code scans) -->
-        <section id="view-section" class="section hidden">
-            <div class="glass-card">
-                <div id="view-card-container">
-                    <model-viewer 
-                        id="view-model"
-                        alt="3D Business Card"
-                        auto-rotate
-                        camera-controls
-                        ar
-                        ar-modes="webxr scene-viewer quick-look"
-                        style="width: 100%; height: 500px;"
-                    >
-                        <button slot="ar-button" class="btn btn-primary" style="position: absolute; bottom: 16px; right: 16px;">
-                            <span class="material-icons">view_in_ar</span> View in AR
-                        </button>
-                    </model-viewer>
-                    
-                    <div class="text-center mt-3">
-                        <h2 id="view-name">John Doe</h2>
-                        <p id="view-title">CEO at Example Inc.</p>
-                    </div>
-                    
-                    <div class="toolbar justify-center mt-3">
-                        <button class="btn btn-primary" onclick="addToContacts()">
-                            <span class="material-icons">person_add</span> Add to Contacts
-                        </button>
-                        <button class="btn btn-secondary" onclick="shareCard()">
-                            <span class="material-icons">share</span> Share
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+        </div>
+        
+        <footer>
+            <p>WebAR Experience - 3D Editor works without .mind file, but AR functionality requires a .mind file for image tracking.</p>
+        </footer>
     </div>
-
+    
     <script>
         // Global variables
-        let currentCard = {
-            name: '',
-            title: '',
-            modelUrl: '',
-            imageUrl: '',
-            background: 'space',
-            effects: [],
-            cardId: generateId()
-        };
+        let modelScene, modelCamera, modelRenderer, modelControls;
+        let transformControls;
+        let currentModel = null;
+        let primitives = [];
+        let selectedObject = null;
+        let currentMode = 'translate';
+        let objectCounter = 1;
         
         // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            initBackgroundAnimation();
-            checkUrlForCardView();
-            
-            // Set up model viewer for preview
-            const previewModel = document.getElementById('preview-model');
-            previewModel.addEventListener('load', () => {
-                // Model loaded
-            });
-            
-            // Set up file uploads
-            document.getElementById('card-model').addEventListener('change', handleModelUpload);
-            document.getElementById('card-image').addEventListener('change', handleImageUpload);
+        document.addEventListener('DOMContentLoaded', () => {
+            initModelPreview();
+            setupEventListeners();
+            setupPrimitiveUI();
+            generateQRCode();
         });
         
-        // Background animation with Three.js
-        function initBackgroundAnimation() {
-            const canvas = document.getElementById('bg-canvas');
-            const ctx = canvas.getContext('2d');
+        // Initialize 3D model preview
+        function initModelPreview() {
+            const container = document.getElementById('model-preview');
             
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            // Create scene
+            modelScene = new THREE.Scene();
+            modelScene.background = new THREE.Color(0x0f172a);
             
-            const particles = [];
-            const particleCount = window.innerWidth < 768 ? 50 : 100;
+            // Create camera
+            modelCamera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            modelCamera.position.z = 5;
             
-            for (let i = 0; i < particleCount; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 3 + 1,
-                    speedX: Math.random() * 1 - 0.5,
-                    speedY: Math.random() * 1 - 0.5,
-                    color: `rgba(0, 240, 255, ${Math.random() * 0.5 + 0.1})`
-                });
-            }
+            // Create renderer
+            modelRenderer = new THREE.WebGLRenderer({ antialias: true });
+            modelRenderer.setSize(container.clientWidth, container.clientHeight);
+            modelRenderer.setPixelRatio(window.devicePixelRatio);
+            modelRenderer.shadowMap.enabled = true;
+            container.appendChild(modelRenderer.domElement);
             
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Add lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            modelScene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(2, 3, 4);
+            directionalLight.castShadow = true;
+            modelScene.add(directionalLight);
+            
+            const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            backLight.position.set(-2, -1, -3);
+            modelScene.add(backLight);
+            
+            // Add grid helper
+            const gridHelper = new THREE.GridHelper(20, 20, 0x4f46e5, 0x4f46e5);
+            gridHelper.material.opacity = 0.15;
+            gridHelper.material.transparent = true;
+            gridHelper.position.y = -2;
+            modelScene.add(gridHelper);
+            
+            // Add orbit controls
+            modelControls = new THREE.OrbitControls(modelCamera, modelRenderer.domElement);
+            modelControls.enableDamping = true;
+            modelControls.dampingFactor = 0.05;
+            modelControls.screenSpacePanning = true;
+            
+            // Add transform controls
+            transformControls = new THREE.TransformControls(modelCamera, modelRenderer.domElement);
+            transformControls.addEventListener('dragging-changed', function(event) {
+                modelControls.enabled = !event.value;
+            });
+            modelScene.add(transformControls);
+            
+            // Handle object selection
+            modelRenderer.domElement.addEventListener('click', (event) => {
+                const mouse = new THREE.Vector2();
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
                 
-                // Draw connecting lines
-                for (let i = 0; i < particles.length; i++) {
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const dx = particles[i].x - particles[j].x;
-                        const dy = particles[i].y - particles[j].y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < 150) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = `rgba(0, 240, 255, ${1 - distance / 150})`;
-                            ctx.lineWidth = 0.5;
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
-                        }
-                    }
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, modelCamera);
+                
+                const intersects = raycaster.intersectObjects(modelScene.children, true);
+                
+                if (intersects.length > 0) {
+                    const object = intersects[0].object;
+                    
+                    // Don't select lights or helpers
+                    if (object.isLight || object.isAxesHelper || object.isGridHelper) return;
+                    
+                    selectObject(object);
+                } else {
+                    deselectObject();
                 }
-                
-                // Draw particles
-                particles.forEach(particle => {
-                    ctx.beginPath();
-                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                    ctx.fillStyle = particle.color;
-                    ctx.fill();
-                    
-                    // Move particles
-                    particle.x += particle.speedX;
-                    particle.y += particle.speedY;
-                    
-                    // Bounce off edges
-                    if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
-                    if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
-                });
-                
+            });
+            
+            // Animation loop
+            function animate() {
                 requestAnimationFrame(animate);
+                modelControls.update();
+                modelRenderer.render(modelScene, modelCamera);
             }
             
             animate();
             
+            // Handle window resize
             window.addEventListener('resize', () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+                modelCamera.aspect = container.clientWidth / container.clientHeight;
+                modelCamera.updateProjectionMatrix();
+                modelRenderer.setSize(container.clientWidth, container.clientHeight);
             });
+            
+            // Load default model
+            loadModel(document.getElementById('model-url').value);
         }
         
-        // Show/hide sections
-        function showSection(sectionId) {
-            document.querySelectorAll('section').forEach(section => {
-                section.classList.add('hidden');
-            });
+        // Select an object
+        function selectObject(object) {
+            if (selectedObject === object) return;
             
-            document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+            deselectObject();
+            selectedObject = object;
+            transformControls.attach(selectedObject);
             
-            if (sectionId === 'create') {
-                switchTab('upload');
+            // Highlight selected object
+            if (selectedObject.material) {
+                selectedObject.userData.originalMaterial = selectedObject.material;
+                const highlightMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xffff00,
+                    emissive: 0x444400,
+                    shininess: 100
+                });
+                selectedObject.material = highlightMaterial;
             }
         }
         
-        // Switch between tabs in create section
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            
-            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
-            document.getElementById(`${tabId}-tab`).classList.remove('hidden');
-            
-            if (tabId === 'preview') {
-                updatePreview();
-            } else if (tabId === 'publish') {
-                generateQRCode();
-            }
-        }
-        
-        // Handle 3D model upload
-        function handleModelUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentCard.modelUrl = e.target.result;
-                
-                // For design preview
-                if (document.getElementById('design-tab').classList.contains('hidden') === false) {
-                    renderDesignPreview();
+        // Deselect current object
+        function deselectObject() {
+            if (selectedObject) {
+                if (selectedObject.userData.originalMaterial) {
+                    selectedObject.material = selectedObject.userData.originalMaterial;
                 }
-            };
-            reader.readAsDataURL(file);
+                transformControls.detach();
+                selectedObject = null;
+            }
         }
         
-        // Handle image upload
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentCard.imageUrl = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        // Select background
-        function selectBackground(bg) {
-            currentCard.background = bg;
-            document.querySelectorAll('.bg-option').forEach(opt => {
-                opt.classList.remove('selected');
+        // Set up event listeners
+        function setupEventListeners() {
+            // Model file handling
+            document.getElementById('model-file-btn').addEventListener('click', () => {
+                document.getElementById('model-file').click();
             });
-            event.target.classList.add('selected');
             
-            renderDesignPreview();
+            document.getElementById('model-file').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    document.getElementById('model-url').value = url;
+                    loadModel(url);
+                }
+            });
+            
+            document.getElementById('model-url').addEventListener('change', (e) => {
+                if (e.target.value) {
+                    loadModel(e.target.value);
+                }
+            });
+            
+            // Target file handling
+            document.getElementById('target-file-btn').addEventListener('click', () => {
+                document.getElementById('target-file').click();
+            });
+            
+            document.getElementById('target-file').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    document.getElementById('target-url').value = url;
+                }
+            });
+            
+            // Reset buttons
+            document.getElementById('reset-model').addEventListener('click', resetModelView);
+            document.getElementById('center-model').addEventListener('click', centerModel);
+            
+            // Start AR button
+            document.getElementById('start-ar').addEventListener('click', startAR);
+            
+            // Toolbar buttons
+            document.getElementById('translate-btn').addEventListener('click', () => setTransformMode('translate'));
+            document.getElementById('rotate-btn').addEventListener('click', () => setTransformMode('rotate'));
+            document.getElementById('scale-btn').addEventListener('click', () => setTransformMode('scale'));
+            document.getElementById('delete-btn').addEventListener('click', deleteSelected);
+            document.getElementById('duplicate-btn').addEventListener('click', duplicateSelected);
+            
+            // QR Code buttons
+            document.getElementById('generate-qr').addEventListener('click', generateQRCode);
+            document.getElementById('download-png').addEventListener('click', () => downloadQRCode('png'));
+            document.getElementById('download-jpg').addEventListener('click', () => downloadQRCode('jpg'));
+            document.getElementById('download-svg').addEventListener('click', () => downloadQRCode('svg'));
         }
         
-        // Apply effect to card
-        function applyEffect(effect) {
-            const index = currentCard.effects.indexOf(effect);
-            if (index === -1) {
-                currentCard.effects.push(effect);
-            } else {
-                currentCard.effects.splice(index, 1);
+        // Set transform mode
+        function setTransformMode(mode) {
+            currentMode = mode;
+            transformControls.setMode(mode);
+            
+            // Update UI
+            document.querySelectorAll('.toolbar-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${mode}-btn`).classList.add('active');
+        }
+        
+        // Delete selected object
+        function deleteSelected() {
+            if (selectedObject) {
+                // Remove from scene
+                modelScene.remove(selectedObject);
+                
+                // Remove from primitives array if it's a primitive
+                const index = primitives.indexOf(selectedObject);
+                if (index !== -1) {
+                    primitives.splice(index, 1);
+                }
+                
+                deselectObject();
+                
+                // Show placeholder if no objects
+                if (!currentModel && primitives.length === 0) {
+                    document.getElementById('model-placeholder').style.display = 'flex';
+                }
+            }
+        }
+        
+        // Duplicate selected object
+        function duplicateSelected() {
+            if (selectedObject) {
+                // Clone the object
+                const clone = selectedObject.clone();
+                
+                // Position it slightly offset
+                clone.position.x += 0.5;
+                clone.position.y += 0.5;
+                
+                // Add to scene
+                modelScene.add(clone);
+                
+                // If it's a primitive, add to primitives array
+                if (primitives.includes(selectedObject)) {
+                    primitives.push(clone);
+                }
+                
+                // Select the new object
+                selectObject(clone);
+            }
+        }
+        
+        // Set up primitive UI
+        function setupPrimitiveUI() {
+            const primitiveType = document.getElementById('primitive-type');
+            
+            // Update UI based on primitive type
+            primitiveType.addEventListener('change', () => {
+                updatePrimitiveUI();
+            });
+            
+            // Add primitive button
+            document.getElementById('add-primitive').addEventListener('click', addPrimitive);
+            
+            // Clear primitives button
+            document.getElementById('clear-primitives').addEventListener('click', clearPrimitives);
+            
+            // Initialize UI
+            updatePrimitiveUI();
+        }
+        
+        // Update primitive UI based on selected type
+        function updatePrimitiveUI() {
+            const type = document.getElementById('primitive-type').value;
+            const widthInput = document.getElementById('primitive-width');
+            const heightInput = document.getElementById('primitive-height');
+            const depthInput = document.getElementById('primitive-depth');
+            const radiusInput = document.getElementById('primitive-radius');
+            
+            // Reset all inputs
+            widthInput.disabled = false;
+            heightInput.disabled = false;
+            depthInput.disabled = false;
+            radiusInput.disabled = false;
+            
+            // Update labels based on primitive type
+            switch(type) {
+                case 'box':
+                    widthInput.parentNode.querySelector('label').textContent = 'Width';
+                    heightInput.parentNode.querySelector('label').textContent = 'Height';
+                    depthInput.parentNode.querySelector('label').textContent = 'Depth';
+                    radiusInput.disabled = true;
+                    break;
+                case 'sphere':
+                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
+                    heightInput.parentNode.querySelector('label').textContent = 'Width Segments';
+                    depthInput.parentNode.querySelector('label').textContent = 'Height Segments';
+                    radiusInput.disabled = true;
+                    break;
+                case 'cylinder':
+                    widthInput.parentNode.querySelector('label').textContent = 'Radius Top';
+                    heightInput.parentNode.querySelector('label').textContent = 'Radius Bottom';
+                    depthInput.parentNode.querySelector('label').textContent = 'Height';
+                    radiusInput.disabled = true;
+                    break;
+                case 'cone':
+                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
+                    heightInput.parentNode.querySelector('label').textContent = 'Height';
+                    depthInput.parentNode.querySelector('label').textContent = 'Radial Segments';
+                    radiusInput.disabled = true;
+                    break;
+                case 'torus':
+                    widthInput.parentNode.querySelector('label').textContent = 'Radius';
+                    heightInput.parentNode.querySelector('label').textContent = 'Tube';
+                    depthInput.parentNode.querySelector('label').textContent = 'Radial Segments';
+                    radiusInput.parentNode.querySelector('label').textContent = 'Tubular Segments';
+                    break;
+            }
+        }
+        
+        // Add primitive to scene
+        function addPrimitive() {
+            const type = document.getElementById('primitive-type').value;
+            const width = parseFloat(document.getElementById('primitive-width').value);
+            const height = parseFloat(document.getElementById('primitive-height').value);
+            const depth = parseFloat(document.getElementById('primitive-depth').value);
+            const radius = parseFloat(document.getElementById('primitive-radius').value);
+            const widthSegs = parseInt(document.getElementById('width-segments').value);
+            const heightSegs = parseInt(document.getElementById('height-segments').value);
+            const depthSegs = parseInt(document.getElementById('depth-segments').value);
+            const color = document.getElementById('primitive-color').value;
+            
+            let geometry, material, mesh;
+            
+            material = new THREE.MeshPhongMaterial({
+                color: color,
+                shininess: 80,
+                side: THREE.DoubleSide
+            });
+            
+            const params = {
+                width, height, depth, radius, 
+                widthSegs, heightSegs, depthSegs,
+                radialSegments: widthSegs,
+                tubularSegments: depthSegs
+            };
+            
+            switch(type) {
+                case 'box':
+                    geometry = new THREE.BoxGeometry(width, height, depth, widthSegs, heightSegs, depthSegs);
+                    break;
+                case 'sphere':
+                    geometry = new THREE.SphereGeometry(width, heightSegs, depthSegs);
+                    break;
+                case 'cylinder':
+                    geometry = new THREE.CylinderGeometry(width, height, depth, widthSegs);
+                    break;
+                case 'cone':
+                    geometry = new THREE.ConeGeometry(width, height, depthSegs);
+                    break;
+                case 'torus':
+                    geometry = new THREE.TorusGeometry(width, height, depthSegs, depth);
+                    break;
+                default:
+                    geometry = new THREE.BoxGeometry(1, 1, 1);
             }
             
-            renderDesignPreview();
+            mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(0, 0, 0);
+            mesh.userData.type = type;
+            mesh.userData.params = params;
+            mesh.userData.name = `Primitive ${objectCounter++}`;
+            
+            modelScene.add(mesh);
+            primitives.push(mesh);
+            
+            // Hide placeholder
+            document.getElementById('model-placeholder').style.display = 'none';
+            
+            // Select the new primitive
+            selectObject(mesh);
+            
+            // Center the primitive
+            centerModel();
         }
         
-        // Render design preview with Three.js
-        function renderDesignPreview() {
-            const container = document.getElementById('design-preview');
-            container.innerHTML = '';
+        // Clear all primitives
+        function clearPrimitives() {
+            for (const primitive of primitives) {
+                modelScene.remove(primitive);
+            }
+            primitives = [];
             
-            if (!currentCard.modelUrl) {
-                container.innerHTML = '<p class="text-center">Upload a 3D model to see preview</p>';
+            // Show placeholder if no model is loaded
+            if (!currentModel) {
+                document.getElementById('model-placeholder').style.display = 'flex';
+            }
+            
+            deselectObject();
+        }
+        
+        // Load 3D model
+        function loadModel(url) {
+            // Remove existing model
+            if (currentModel) {
+                modelScene.remove(currentModel);
+                currentModel = null;
+            }
+            
+            // Show loading indicator
+            document.getElementById('model-placeholder').innerHTML = `
+                <div class="loader">
+                    <div style="font-size: 64px; color: #4f46e5; margin-bottom: 20px; animation: spin 1s linear infinite;">
+                        <i class="fas fa-spinner spinner"></i>
+                    </div>
+                    <h3>Loading 3D Model</h3>
+                    <p>Please wait while we load your model...</p>
+                </div>
+            `;
+            
+            // Create a loader
+            const loader = new THREE.GLTFLoader();
+            
+            // Load GLB model
+            loader.load(
+                url,
+                (gltf) => {
+                    const model = gltf.scene;
+                    modelScene.add(model);
+                    
+                    // Center and scale model
+                    centerModel(model);
+                    
+                    currentModel = model;
+                    currentModel.userData.name = "3D Model";
+                    document.getElementById('model-placeholder').style.display = 'none';
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading model:', error);
+                    document.getElementById('model-placeholder').innerHTML = `
+                        <div style="font-size: 64px; color: #ef4444; margin-bottom: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3>Error Loading Model</h3>
+                        <p>Could not load the 3D model. Please check the URL or file format.</p>
+                        <button class="button secondary" onclick="document.getElementById('model-placeholder').style.display = 'none'">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    `;
+                }
+            );
+        }
+        
+        // Center model in view
+        function centerModel(model = currentModel) {
+            if (!model) return;
+            
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            
+            model.position.x -= center.x;
+            model.position.y -= center.y;
+            model.position.z -= center.z;
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 5 / maxDim;
+            model.scale.set(scale, scale, scale);
+            
+            modelCamera.position.set(0, 0, 5);
+            modelCamera.lookAt(0, 0, 0);
+            modelControls.update();
+        }
+        
+        // Reset model view
+        function resetModelView() {
+            if (!modelControls) return;
+            
+            modelCamera.position.set(0, 0, 5);
+            modelCamera.lookAt(0, 0, 0);
+            modelControls.reset();
+        }
+        
+        // Start AR experience
+        function startAR() {
+            const modelUrl = document.getElementById('model-url').value;
+            const targetUrl = document.getElementById('target-url').value;
+            
+            if (!modelUrl && primitives.length === 0) {
+                alert('Please upload a 3D model or create a primitive first');
                 return;
             }
             
-            // Update card info from form
-            currentCard.name = document.getElementById('card-name').value || 'Your Name';
-            currentCard.title = document.getElementById('card-title').value || 'Your Title';
-            
-            // Create a simple model-viewer for design preview
-            const modelViewer = document.createElement('model-viewer');
-            modelViewer.setAttribute('src', currentCard.modelUrl);
-            modelViewer.setAttribute('alt', '3D Business Card Preview');
-            modelViewer.setAttribute('auto-rotate', '');
-            modelViewer.setAttribute('camera-controls', '');
-            modelViewer.style.width = '100%';
-            modelViewer.style.height = '100%';
-            
-            container.appendChild(modelViewer);
-        }
-        
-        // Update preview tab with final card
-        function updatePreview() {
-            const previewModel = document.getElementById('preview-model');
-            
-            if (currentCard.modelUrl) {
-                previewModel.setAttribute('src', currentCard.modelUrl);
+            if (!targetUrl) {
+                alert('AR functionality requires a .mind file for image tracking. Please provide a .mind file to use AR features.');
+                return;
             }
             
-            // Apply effects would be implemented here
-            // This is a simplified version - in a real app you'd apply shaders or other effects
+            // Check if we're on HTTPS or localhost
+            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+                alert('AR functionality requires HTTPS. Please host this page on a secure server or run it on localhost.');
+                return;
+            }
+            
+            // Start MindAR
+            alert('AR experience would start now with the current scene objects.\nIn a real implementation, this would launch the AR viewer.');
         }
         
-        // Generate QR code
+        // Generate QR Code
         function generateQRCode() {
-            const cardUrl = `https://chanuc5.github.io/ARC5/?id=${currentCard.cardId}`;
-            document.getElementById('card-url').value = cardUrl;
+            const qrElement = document.getElementById('qrcode');
+            qrElement.innerHTML = '';
             
-            const qrcodeDiv = document.getElementById('qrcode');
-            qrcodeDiv.innerHTML = '';
+            // Get current URL to encode in QR code
+            const currentUrl = window.location.href;
             
-            QRCode.toCanvas(qrcodeDiv, cardUrl, { 
-                width: 200,
-                margin: 2,
+            // Generate QR code
+            QRCode.toCanvas(qrElement, currentUrl, {
+                width: 180,
+                margin: 1,
                 color: {
                     dark: '#000000',
                     light: '#ffffff'
                 }
-            }, function(error) {
+            }, function (error) {
                 if (error) console.error(error);
             });
         }
         
-        // Copy URL to clipboard
-        function copyUrl() {
-            const urlInput = document.getElementById('card-url');
-            urlInput.select();
-            document.execCommand('copy');
-            
-            // Show feedback
-            const originalText = urlInput.value;
-            urlInput.value = 'Copied to clipboard!';
-            setTimeout(() => {
-                urlInput.value = originalText;
-            }, 2000);
-        }
-        
-        // Download QR code
-        function downloadQR() {
+        // Download QR Code
+        function downloadQRCode(format) {
             const canvas = document.querySelector('#qrcode canvas');
             if (!canvas) return;
             
-            // Create a temporary link
-            const link = document.createElement('a');
-            link.download = `3dcard-${currentCard.name.replace(/\s+/g, '-').toLowerCase() || 'my-card'}.png`;
-            link.href = canvas.toDataURL('image/png');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        // Share card
-        function shareCard() {
-            if (navigator.share) {
-                navigator.share({
-                    title: `${currentCard.name}'s 3D Business Card`,
-                    text: `Check out ${currentCard.name}'s interactive 3D business card`,
-                    url: document.getElementById('card-url').value
-                }).catch(err => {
-                    console.log('Error sharing:', err);
-                });
-            } else {
-                // Fallback for browsers that don't support Web Share API
-                copyUrl();
-                alert('Link copied to clipboard. Share it manually.');
+            let mimeType, extension;
+            
+            switch(format) {
+                case 'png':
+                    mimeType = 'image/png';
+                    extension = 'png';
+                    break;
+                case 'jpg':
+                    mimeType = 'image/jpeg';
+                    extension = 'jpg';
+                    break;
+                case 'svg':
+                    // For SVG, we need to generate it separately
+                    const currentUrl = window.location.href;
+                    const svgContent = `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+                            <rect width="100%" height="100%" fill="white"/>
+                            ${generateQRCodeSvgPath(currentUrl)}
+                        </svg>
+                    `;
+                    
+                    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `ar-experience.${extension}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    return;
+                default:
+                    mimeType = 'image/png';
+                    extension = 'png';
             }
-        }
-        
-        // Generate VCF contact file
-        function generateVCF() {
-            const vcfData = [
-                'BEGIN:VCARD',
-                'VERSION:3.0',
-                `FN:${currentCard.name || 'Your Name'}`,
-                `TITLE:${currentCard.title || 'Your Title'}`,
-                'END:VCARD'
-            ].join('\n');
             
-            const blob = new Blob([vcfData], { type: 'text/vcard' });
-            const url = URL.createObjectURL(blob);
-            
-            const link = document.createElement('a');
-            link.download = `${currentCard.name.replace(/\s+/g, '-').toLowerCase() || 'contact'}.vcf`;
-            link.href = url;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const image = canvas.toDataURL(mimeType);
+            const a = document.createElement('a');
+            a.href = image;
+            a.download = `ar-experience.${extension}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
         
-        // Add to contacts (simulated)
-        function addToContacts() {
-            alert('Contact information would be saved to your device');
-        }
-        
-        // Check URL for card view
-        function checkUrlForCardView() {
-            const params = new URLSearchParams(window.location.search);
-            const cardId = params.get('id');
-            
-            if (cardId) {
-                // In a real app, you would fetch card data from a database
-                // Here we'll simulate loading a card
-                showSection('view');
-                
-                document.getElementById('view-name').textContent = currentCard.name || 'John Doe';
-                document.getElementById('view-title').textContent = currentCard.title || 'CEO at Example Inc.';
-                
-                if (currentCard.modelUrl) {
-                    document.getElementById('view-model').setAttribute('src', currentCard.modelUrl);
-                }
-            }
-        }
-        
-        // Toggle dark/light theme
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-        }
-        
-        // Generate random ID for cards
-        function generateId() {
-            return Math.random().toString(36).substring(2, 9) + Math.random().toString(36).substring(2, 9);
+        // Helper function to generate SVG path for QR code
+        function generateQRCodeSvgPath(text) {
+            // This is a simplified version - in a real implementation, 
+            // you would use a proper QR code library that can generate SVG paths
+            return `<path d="M20,20h140v140H20V20z M40,40h100v100H40V40z" fill="black"/>`;
         }
     </script>
 </body>
