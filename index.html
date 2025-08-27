@@ -3,1199 +3,2097 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebAR Experience - QR Code & AR Editor</title>
+    <title>Meechto - Premium Job Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --accent: #8b5cf6;
-            --dark: #1f2937;
-            --dark-light: #374151;
-            --light: #f9fafb;
-            --gray: #9ca3af;
-            --border: #e5e7eb;
-            --success: #22c55e;
-            --warning: #f59e0b;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #3b82f6;
+            --accent: #10b981;
             --danger: #ef4444;
-            --toolbar: #1e1e2e;
-            --card-bg: rgba(30, 30, 46, 0.7);
-            --card-border: rgba(99, 102, 241, 0.2);
+            --warning: #f59e0b;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f9fafb;
+            --card-bg: #ffffff;
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --radius: 12px;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
         }
-        
+
+        .dark-theme {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #60a5fa;
+            --accent: #10b981;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --text: #f3f4f6;
+            --text-light: #d1d5db;
+            --bg: #111827;
+            --card-bg: #1f2937;
+            --header-bg: rgba(17, 24, 39, 0.95);
+            --border: #374151;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3);
+            --glass-bg: rgba(31, 41, 55, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            transition: var(--transition);
         }
-        
+
         body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: var(--light);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
             overflow-x: hidden;
         }
-        
+
+        /* Layout */
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .flex {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
         }
-        
-        header {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 15px 25px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--card-border);
+
+        .grid {
+            display: grid;
         }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+
+        .hidden {
+            display: none !important;
         }
-        
-        .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
-        }
-        
-        h1 {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .main-content {
-            display: flex;
-            gap: 25px;
-            flex: 1;
-        }
-        
-        .panel {
-            width: 380px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--card-border);
-            overflow-y: auto;
-        }
-        
-        .preview-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-        
-        .preview-box {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            height: 100%;
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--card-border);
-        }
-        
-        h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--light);
-        }
-        
-        h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 16px 0 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--card-border);
-            color: var(--primary-light);
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            color: #c7d2fe;
-        }
-        
-        .input-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        
-        .input-row > * {
-            flex: 1;
-        }
-        
-        input[type="text"], input[type="number"], select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(30, 30, 46, 0.6);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            font-size: 14px;
-            color: white;
-            transition: all 0.3s;
-        }
-        
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-            background: rgba(30, 30, 46, 0.8);
-        }
-        
-        input[type="color"] {
-            width: 100%;
-            height: 40px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            background: rgba(30, 30, 46, 0.6);
-        }
-        
-        button {
-            padding: 12px 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
-        }
-        
-        button.secondary {
-            background: rgba(30, 30, 46, 0.6);
-            color: var(--primary);
-            border: 1px solid var(--card-border);
-        }
-        
-        button.secondary:hover {
-            background: rgba(30, 30, 46, 0.8);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        
-        button.success {
-            background: var(--success);
-        }
-        
-        button.warning {
-            background: var(--warning);
-        }
-        
-        .preview-wrapper {
-            width: 100%;
-            height: 400px;
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid var(--card-border);
-        }
-        
-        #model-preview {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .preview-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            gap: 20px;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.7) 100%);
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .ar-button {
-            padding: 14px 28px;
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--success) 100%);
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 16px;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-        }
-        
-        .ar-button:hover {
-            background: linear-gradient(135deg, #0da271 0%, #16a34a 100%);
-            transform: translateY(-2px);
-        }
-        
-        .instructions {
-            background: rgba(16, 185, 129, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 10px;
-            border-left: 4px solid var(--secondary);
-        }
-        
-        .instructions h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: var(--light);
-            border: none;
-            padding: 0;
-        }
-        
-        .instructions ul {
-            padding-left: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #c7d2fe;
-        }
-        
-        .instructions li {
-            margin-bottom: 8px;
-        }
-        
-        .instructions code {
-            background: rgba(99, 102, 241, 0.2);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 13px;
-            color: var(--primary);
-        }
-        
-        .qr-section {
-            background: rgba(30, 30, 46, 0.6);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 20px;
-        }
-        
-        .qr-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin: 15px 0;
-        }
-        
-        #qrcode {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 220px;
-            min-width: 220px;
-        }
-        
-        .qr-download-options {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .download-btn {
-            padding: 10px 15px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        
-        .download-btn:hover {
-            background: var(--primary-dark);
-        }
-        
-        .google-lens-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        
-        .google-lens-info i {
-            color: #ea4335;
-            font-size: 20px;
-        }
-        
-        /* Loading spinner */
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            padding: 10px 0;
-            flex-wrap: wrap;
-        }
-        
-        .toolbar-group {
-            display: flex;
-            gap: 8px;
-            background: rgba(30, 30, 46, 0.6);
-            padding: 8px;
-            border-radius: 10px;
-            border: 1px solid var(--card-border);
-        }
-        
-        .toolbar-button {
-            padding: 8px 12px;
-            background: rgba(30, 30, 46, 0.6);
-            color: #c7d2fe;
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-        }
-        
-        .toolbar-button:hover {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: var(--primary);
-        }
-        
-        .toolbar-button.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        footer {
-            text-align: center;
-            padding: 15px;
-            color: var(--gray);
-            font-size: 14px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--card-border);
-            margin-top: 20px;
-        }
-        
-        /* AR Viewer */
-        #ar-viewer {
+
+        /* Intro Animation */
+        .intro-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: black;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0.5s forwards 2.5s;
         }
-        
-        #ar-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
+
+        .intro-content {
+            text-align: center;
         }
-        
-        #ar-canvas {
-            width: 100%;
-            height: 100%;
-        }
-        
-        #ar-back {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
-            padding: 10px 15px;
-            background: rgba(0, 0, 0, 0.6);
+
+        .intro-logo {
+            font-size: 5rem;
+            font-weight: 700;
             color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: zoomIn 1s forwards, float 3s ease-in-out infinite;
+            margin-bottom: 2rem;
+        }
+
+        .intro-tagline {
+            color: white;
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: fadeIn 1s forwards 1s;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--header-bg);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo i {
+            margin-right: 0.5rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: var(--transition);
+        }
+
+        nav a:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        nav a:hover:after {
+            width: 100%;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: none;
             border: none;
-            border-radius: 8px;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* User Menu */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            width: 200px;
+            padding: 1rem;
+            z-index: 10;
+            display: none;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .user-dropdown-item {
+            padding: 0.5rem;
+            border-radius: var(--radius);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
         }
-        
-        #ar-status {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            z-index: 1001;
+
+        .user-dropdown-item:hover {
+            background-color: var(--border);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            min-height: calc(100vh - 200px);
+            padding: 2rem 0;
+        }
+
+        /* Page Sections */
+        .page-section {
             display: none;
         }
-        
-        #ar-tracking-status {
+
+        .page-section.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 4rem 2rem;
+            border-radius: var(--radius);
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin: 2rem auto;
+        }
+
+        .search-bar {
+            display: flex;
+            background-color: var(--card-bg);
+            border-radius: 50px;
+            padding: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            background: transparent;
+            color: var(--text);
+            outline: none;
+        }
+
+        .search-bar button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .search-bar button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        /* Job Listings */
+        .job-listings {
+            margin: 3rem auto;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .section-title:after {
+            content: '';
             position: absolute;
-            bottom: 20px;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
+            width: 80px;
+            height: 4px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        .jobs-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .job-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+            border: 1px solid var(--border);
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .job-card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .job-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .company {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .company i {
+            margin-right: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .job-type {
+            background-color: var(--primary);
             color: white;
-            padding: 8px 16px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .job-card-body {
+            padding: 1.5rem;
+        }
+
+        .job-desc {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .job-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .detail i {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .detail span {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .payment {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .job-card-footer {
+            padding: 1rem 1.5rem;
+            background-color: rgba(0, 0, 0, 0.03);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Improved Button Styles */
+        .job-btn {
+            padding: 0.6rem 1.2rem;
             border-radius: 8px;
-            z-index: 1001;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+            min-width: fit-content;
+            flex: 1;
+            justify-content: center;
         }
-        
-        #ar-tracking-status.tracking {
-            background: rgba(34, 197, 94, 0.7);
+
+        .job-btn:active {
+            transform: scale(0.95);
         }
-        
-        #ar-tracking-status.not-tracking {
-            background: rgba(239, 68, 68, 0.7);
+
+        .btn-call {
+            background-color: #10b981;
+            color: white;
         }
-        
-        @media (max-width: 1100px) {
-            .main-content {
+
+        .btn-call:hover {
+            background-color: #0d966c;
+        }
+
+        .btn-whatsapp {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #1da750;
+        }
+
+        .btn-apply {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-apply:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-view {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-view:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Auth Forms */
+        .auth-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .auth-tab {
+            padding: 1rem;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            margin-top: 2rem;
+        }
+
+        /* Dashboard */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+
+        .dashboard-sidebar {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu-item {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .sidebar-menu-item:hover:not(.active) {
+            background-color: var(--border);
+        }
+
+        .dashboard-content {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        /* Job Post Form */
+        .job-form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Applications List */
+        .applications-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .application-item {
+            background-color: var(--bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        .application-info h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .application-status {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-reviewed {
+            background-color: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-accepted {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+
+        /* Employer Dashboard Specific */
+        .vacancy-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .vacancy-item {
+            background-color: var(--bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .vacancy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .vacancy-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .vacancy-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .vacancy-action-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-edit {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .vacancy-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Job Seeker Dashboard Specific */
+        .job-alerts {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .alert-item {
+            background-color: var(--bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-info h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--header-bg);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-col h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-col h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .footer-col p {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-col ul li a {
+            text-decoration: none;
+            color: var(--text-light);
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--primary);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            color: var(--text);
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .social-icons a:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-light);
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 99;
+            cursor: pointer;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-5px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .header-container {
                 flex-direction: column;
+                gap: 1rem;
             }
             
-            .panel {
+            nav ul {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-sidebar {
+                order: 2;
+            }
+            
+            .dashboard-content {
+                order: 1;
+            }
+
+            .job-card-footer {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .intro-logo {
+                font-size: 3.5rem;
+            }
+            
+            .intro-tagline {
+                font-size: 1.2rem;
+            }
+            
+            .header-container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            nav {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+                border-radius: var(--radius);
+            }
+            
+            .search-bar input {
                 width: 100%;
+                padding: 1rem;
             }
             
-            .preview-box {
-                height: 500px;
+            .search-bar button {
+                width: 100%;
+                margin-top: 0.5rem;
+                border-radius: var(--radius);
+                justify-content: center;
+            }
+            
+            .jobs-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-options {
+                grid-template-columns: 1fr;
+            }
+
+            .vacancy-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .vacancy-actions {
+                align-self: flex-start;
             }
         }
-        
-        @media (max-width: 600px) {
-            .input-row {
+
+        @media (max-width: 576px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.7rem;
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .auth-buttons {
                 flex-direction: column;
             }
             
-            .qr-download-options {
-                flex-direction: column;
+            .hero-title {
+                font-size: 2rem;
             }
             
-            header {
-                flex-direction: column;
-                gap: 15px;
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .job-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
             }
         }
+
+        /* Animation delays for job cards */
+        .job-card:nth-child(1) { animation-delay: 0.1s; }
+        .job-card:nth-child(2) { animation-delay: 0.2s; }
+        .job-card:nth-child(3) { animation-delay: 0.3s; }
+        .job-card:nth-child(4) { animation-delay: 0.4s; }
+        .job-card:nth-child(5) { animation-delay: 0.5s; }
+        .job-card:nth-child(6) { animation-delay: 0.6s; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-cube"></i>
+    <!-- Intro Animation -->
+    <div class="intro-container">
+        <div class="intro-content">
+            <div class="intro-logo">Meechto</div>
+            <p class="intro-tagline">Find Your Dream Career</p>
+        </div>
+    </div>
+
+    <!-- Header with Navigation -->
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo" onclick="showPage('home')">
+                <i class="fas fa-briefcase"></i>
+                Meechto
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showPage('home')">Home</a></li>
+                    <li><a href="#" onclick="showPage('jobs')">Find Jobs</a></li>
+                    <li><a href="#" onclick="showPage('companies')">Companies</a></li>
+                    <li><a href="#" onclick="showPage('about')">About</a></li>
+                    <li><a href="#" onclick="showPage('contact')">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <div id="authButtons" class="auth-buttons">
+                    <button class="btn btn-outline" onclick="showAuthModal('login')">Login</button>
+                    <button class="btn btn-primary" onclick="showAuthModal('register')">Register</button>
                 </div>
-                <h1>WebAR Experience</h1>
-            </div>
-            <div style="display: flex; gap: 15px;">
-                <button id="generate-qr" class="secondary">
-                    <i class="fas fa-qrcode"></i>
-                    Generate QR Code
+                <div id="userMenu" class="user-menu hidden">
+                    <div class="user-avatar" onclick="toggleUserDropdown()">JS</div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-item" onclick="showPage('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </div>
+                        <div class="user-dropdown-item" onclick="showPage('profile')">
+                            <i class="fas fa-user"></i> Profile
+                        </div>
+                        <div class="user-dropdown-item" onclick="showPage('my-jobs')">
+                            <i class="fas fa-briefcase"></i> My Jobs
+                        </div>
+                        <div class="user-dropdown-item" onclick="showPage('applications')">
+                            <i class="fas fa-file-alt"></i> Applications
+                        </div>
+                        <div class="user-dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </div>
+                    </div>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
                 </button>
-                <button id="start-ar" class="ar-button">
-                    <i class="fas fa-camera"></i>
-                    Start AR Experience
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
                 </button>
             </div>
-        </header>
-        
-        <div class="main-content">
-            <div class="panel">
-                <h2><i class="fas fa-cloud-upload-alt"></i> 3D Resources</h2>
-                
-                <div class="input-group">
-                    <label for="model-input">3D Model (GLB Format)</label>
-                    <div class="input-row">
-                        <input type="text" id="model-url" placeholder="Enter GLB URL or select file" value="https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Duck/glTF/Duck.gltf">
-                        <button id="model-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
-                    </div>
-                    <input type="file" id="model-file" accept=".glb,.gltf" hidden>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content container">
+        <!-- Home Page -->
+        <section id="home" class="page-section active">
+            <div class="hero-section">
+                <h1 class="hero-title">Find Your Dream Job Today</h1>
+                <p class="hero-subtitle">Meechto connects talented professionals with top companies. Search thousands of jobs and find the perfect match for your skills and experience.</p>
+                <button class="btn btn-primary" onclick="showPage('jobs')">
+                    <i class="fas fa-search"></i> Browse Jobs
+                </button>
+            </div>
+
+            <div class="search-container">
+                <div class="search-bar">
+                    <input type="text" placeholder="Job title, keywords, or company">
+                    <input type="text" placeholder="City, state, or remote">
+                    <button><i class="fas fa-search"></i> Search Jobs</button>
                 </div>
-                
-                <div class="input-group">
-                    <label for="target-input">AR Target File (.mind)</label>
-                    <div class="input-row">
-                        <input type="text" id="target-url" placeholder="Enter .mind file URL" value="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/examples/assets/card-example/card.mind">
-                        <button id="target-file-btn" class="secondary"><i class="fas fa-file-upload"></i></button>
-                    </div>
-                    <input type="file" id="target-file" accept=".mind" hidden>
+            </div>
+
+            <div class="job-listings">
+                <h2 class="section-title">Featured Job Opportunities</h2>
+                <div class="jobs-container">
+                    <!-- Job cards will be dynamically generated -->
                 </div>
-                
-                <div class="qr-section">
-                    <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
-                    <p>Generate a QR code to share your AR experience.</p>
-                    
-                    <div class="qr-container">
-                        <div id="qrcode">
-                            <div class="preview-placeholder">
-                                <i class="fas fa-qrcode" style="font-size: 64px; color: #4f46e5;"></i>
-                                <h3>QR Code Preview</h3>
-                                <p>Click "Generate QR Code" to create your QR</p>
-                            </div>
-                        </div>
-                        
-                        <div class="qr-download-options">
-                            <button id="download-png" class="download-btn">
-                                <i class="fas fa-download"></i> PNG
-                            </button>
-                            <button id="download-jpg" class="download-btn">
-                                <i class="fas fa-download"></i> JPG
-                            </button>
-                            <button id="download-svg" class="download-btn">
-                                <i class="fas fa-download"></i> SVG
-                            </button>
-                        </div>
-                        
-                        <div class="google-lens-info">
-                            <i class="fab fa-google"></i>
-                            <span>Scan with Google Lens to launch AR</span>
-                        </div>
+            </div>
+        </section>
+
+        <!-- Jobs Page -->
+        <section id="jobs" class="page-section">
+            <h2 class="section-title">Find Your Next Opportunity</h2>
+            
+            <div class="filter-section">
+                <h3 class="filter-title"><i class="fas fa-filter"></i> Filter Jobs</h3>
+                <div class="filter-options">
+                    <div class="filter-group">
+                        <label>Job Type</label>
+                        <select>
+                            <option>Any</option>
+                            <option>Full-time</option>
+                            <option>Part-time</option>
+                            <option>Contract</option>
+                            <option>Internship</option>
+                            <option>Remote</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Experience Level</label>
+                        <select>
+                            <option>Any</option>
+                            <option>Entry Level</option>
+                            <option>Mid Level</option>
+                            <option>Senior Level</option>
+                            <option>Executive</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Salary Range</label>
+                        <select>
+                            <option>Any</option>
+                            <option>$30K - $50K</option>
+                            <option>$50K - $80K</option>
+                            <option>$80K - $100K</option>
+                            <option>$100K+</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Date Posted</label>
+                        <select>
+                            <option>Any</option>
+                            <option>Last 24 hours</option>
+                            <option>Last 3 days</option>
+                            <option>Last week</option>
+                            <option>Last month</option>
+                        </select>
                     </div>
                 </div>
-                
-                <div class="instructions">
-                    <h3><i class="fas fa-info-circle"></i> How to Use:</h3>
-                    <ul>
-                        <li>Upload a GLB model or provide a URL</li>
-                        <li>Provide a .mind file for AR image tracking</li>
-                        <li>Generate a QR code to share your AR experience</li>
-                        <li>Click "Start AR" to launch augmented reality</li>
+            </div>
+
+            <div class="jobs-container">
+                <!-- Job cards will be dynamically generated -->
+            </div>
+        </section>
+
+        <!-- Dashboard Page - Different for Job Seekers and Employers -->
+        <section id="dashboard" class="page-section">
+            <h2 class="section-title">Dashboard</h2>
+            
+            <div class="dashboard-container">
+                <div class="dashboard-sidebar">
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-menu-item active" onclick="showDashboardTab('overview')">
+                            <i class="fas fa-tachometer-alt"></i> Overview
+                        </li>
+                        <li class="sidebar-menu-item" onclick="showDashboardTab('profile')">
+                            <i class="fas fa-user"></i> Profile
+                        </li>
+                        <li class="sidebar-menu-item" onclick="showDashboardTab('my-jobs')">
+                            <i class="fas fa-briefcase"></i> My Jobs
+                        </li>
+                        <li class="sidebar-menu-item" onclick="showDashboardTab('applications')">
+                            <i class="fas fa-file-alt"></i> Applications
+                        </li>
+                        <li class="sidebar-menu-item" onclick="showDashboardTab('messages')">
+                            <i class="fas fa-envelope"></i> Messages
+                        </li>
+                        <li class="sidebar-menu-item" onclick="showDashboardTab('settings')">
+                            <i class="fas fa-cog"></i> Settings
+                        </li>
+                        <!-- Employer specific menu items -->
+                        <li id="employer-post-job" class="sidebar-menu-item hidden" onclick="showDashboardTab('post-job')">
+                            <i class="fas fa-plus-circle"></i> Post a Job
+                        </li>
+                        <li id="employer-vacancies" class="sidebar-menu-item hidden" onclick="showDashboardTab('vacancies')">
+                            <i class="fas fa-list-alt"></i> My Vacancies
+                        </li>
                     </ul>
                 </div>
-            </div>
-            
-            <div class="preview-container">
-                <div class="preview-box">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h2>
-                            <i class="fas fa-cube"></i>
-                            3D Model Preview
-                        </h2>
-                        <div class="toolbar">
-                            <div class="toolbar-group">
-                                <button id="reset-model">
-                                    <i class="fas fa-sync-alt"></i> Reset View
-                                </button>
-                                <button id="center-model" class="secondary">
-                                    <i class="fas fa-crosshairs"></i> Center Model
-                                </button>
+                
+                <div class="dashboard-content">
+                    <!-- Job Seeker Dashboard Content -->
+                    <div id="dashboard-overview" class="dashboard-tab">
+                        <h3>Overview</h3>
+                        <p>Welcome to your dashboard! Here you can manage your profile, job applications, and more.</p>
+                        
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                            <div class="stat-card" style="background-color: var(--card-bg); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Applications Sent</h4>
+                                <p style="font-size: 2rem; font-weight: 700;">12</p>
+                            </div>
+                            <div class="stat-card" style="background-color: var(--card-bg); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Profile Views</h4>
+                                <p style="font-size: 2rem; font-weight: 700;">45</p>
+                            </div>
+                            <div class="stat-card" style="background-color: var(--card-bg); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Interview Requests</h4>
+                                <p style="font-size: 2rem; font-weight: 700;">3</p>
                             </div>
                         </div>
                     </div>
-                    <div class="preview-wrapper">
-                        <div id="model-preview"></div>
-                        <div id="model-placeholder" class="preview-placeholder">
-                            <i class="fas fa-cube" style="font-size: 64px; color: #4f46e5;"></i>
-                            <h3>3D Preview Workspace</h3>
-                            <p>Upload a 3D model to begin</p>
+                    
+                    <div id="dashboard-profile" class="dashboard-tab hidden">
+                        <h3>Profile</h3>
+                        <p>Manage your personal information, skills, and resume.</p>
+                    </div>
+                    
+                    <div id="dashboard-my-jobs" class="dashboard-tab hidden">
+                        <h3>Saved Jobs</h3>
+                        <p>View jobs you've saved for later.</p>
+                    </div>
+                    
+                    <div id="dashboard-applications" class="dashboard-tab hidden">
+                        <h3>Applications</h3>
+                        <p>Track the status of your job applications.</p>
+                        
+                        <div class="applications-list" style="margin-top: 1.5rem;">
+                            <div class="application-item">
+                                <div class="application-info">
+                                    <h3>Senior Frontend Developer</h3>
+                                    <p>TechSolutions Inc. • Applied on: 2023-06-15</p>
+                                </div>
+                                <span class="application-status status-reviewed">Under Review</span>
+                            </div>
+                            <div class="application-item">
+                                <div class="application-info">
+                                    <h3>UX/UI Designer</h3>
+                                    <p>CreativeMinds Agency • Applied on: 2023-06-10</p>
+                                </div>
+                                <span class="application-status status-pending">Pending</span>
+                            </div>
+                            <div class="application-item">
+                                <div class="application-info">
+                                    <h3>Data Scientist</h3>
+                                    <p>DataInsight Corp • Applied on: 2023-06-05</p>
+                                </div>
+                                <span class="application-status status-accepted">Accepted</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="preview-box">
-                    <h2>
-                        <i class="fas fa-vr-cardboard"></i>
-                        AR Experience Preview
-                    </h2>
-                    <div style="background: rgba(30, 30, 46, 0.6); border-radius: 12px; padding: 20px;">
-                        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-                            <img src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/examples/assets/card-example/card.png" alt="AR Target" style="max-width: 200px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                    
+                    <div id="dashboard-messages" class="dashboard-tab hidden">
+                        <h3>Messages</h3>
+                        <p>Communicate with employers or candidates.</p>
+                    </div>
+                    
+                    <div id="dashboard-settings" class="dashboard-tab hidden">
+                        <h3>Settings</h3>
+                        <p>Update your account settings and preferences.</p>
+                    </div>
+                    
+                    <!-- Employer Specific Dashboard Content -->
+                    <div id="dashboard-post-job" class="dashboard-tab hidden">
+                        <h3>Post a New Job</h3>
+                        <p>Create a new job vacancy listing.</p>
+                        
+                        <div class="job-form-container" style="margin-top: 1.5rem;">
+                            <form>
+                                <div class="form-group">
+                                    <label for="jobTitle">Job Title</label>
+                                    <input type="text" id="jobTitle" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jobCompany">Company</label>
+                                    <input type="text" id="jobCompany" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jobLocation">Location</label>
+                                    <input type="text" id="jobLocation" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jobType">Job Type</label>
+                                    <select id="jobType" required>
+                                        <option value="full-time">Full-time</option>
+                                        <option value="part-time">Part-time</option>
+                                        <option value="contract">Contract</option>
+                                        <option value="internship">Internship</option>
+                                        <option value="remote">Remote</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jobSalary">Salary Range</label>
+                                    <input type="text" id="jobSalary" placeholder="$80,000 - $100,000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="jobDescription">Job Description</label>
+                                    <textarea id="jobDescription" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jobRequirements">Requirements</label>
+                                    <textarea id="jobRequirements" required></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Post Job</button>
+                                </div>
+                            </form>
                         </div>
-                        <p style="text-align: center; color: #c7d2fe; margin-bottom: 20px;">
-                            Print or display this target image. Point your camera at it to view the AR experience.
-                        </p>
-                        <div style="display: flex; justify-content: center;">
-                            <button id="print-target" class="secondary">
-                                <i class="fas fa-print"></i> Print Target
-                            </button>
+                    </div>
+                    
+                    <div id="dashboard-vacancies" class="dashboard-tab hidden">
+                        <h3>My Job Vacancies</h3>
+                        <p>Manage your posted job vacancies.</p>
+                        
+                        <div class="vacancy-list" style="margin-top: 1.5rem;">
+                            <div class="vacancy-item">
+                                <div class="vacancy-header">
+                                    <div>
+                                        <h3 class="vacancy-title">Senior Frontend Developer</h3>
+                                        <p>TechSolutions Inc. • San Francisco, CA • Full-time</p>
+                                    </div>
+                                    <div class="vacancy-actions">
+                                        <button class="vacancy-action-btn btn-edit">Edit</button>
+                                        <button class="vacancy-action-btn btn-delete">Delete</button>
+                                    </div>
+                                </div>
+                                <p>We are looking for an experienced frontend developer with React expertise to join our growing team.</p>
+                                <div class="vacancy-stats">
+                                    <div class="stat">
+                                        <span class="stat-value">24</span>
+                                        <span class="stat-label">Applications</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-value">5</span>
+                                        <span class="stat-label">Interviews</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-value">3</span>
+                                        <span class="stat-label">Shortlisted</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vacancy-item">
+                                <div class="vacancy-header">
+                                    <div>
+                                        <h3 class="vacancy-title">UX/UI Designer</h3>
+                                        <p>CreativeMinds Agency • Remote • Contract</p>
+                                    </div>
+                                    <div class="vacancy-actions">
+                                        <button class="vacancy-action-btn btn-edit">Edit</button>
+                                        <button class="vacancy-action-btn btn-delete">Delete</button>
+                                    </div>
+                                </div>
+                                <p>Join our design team to create beautiful and functional user interfaces for our clients.</p>
+                                <div class="vacancy-stats">
+                                    <div class="stat">
+                                        <span class="stat-value">18</span>
+                                        <span class="stat-label">Applications</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-value">4</span>
+                                        <span class="stat-label">Interviews</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-value">2</span>
+                                        <span class="stat-label">Shortlisted</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- Other page sections would be defined here -->
+        <section id="companies" class="page-section">
+            <h2 class="section-title">Companies</h2>
+            <p>Browse top companies hiring on Meechto.</p>
+        </section>
+
+        <section id="about" class="page-section">
+            <h2 class="section-title">About Us</h2>
+            <p>Learn about Meechto and our mission.</p>
+        </section>
+
+        <section id="contact" class="page-section">
+            <h2 class="section-title">Contact Us</h2>
+            <p>Get in touch with the Meechto team.</p>
+        </section>
+    </main>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="authModalTitle">Login</h2>
+                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <div class="auth-tab active" onclick="showAuthForm('login')">Login</div>
+                    <div class="auth-tab" onclick="showAuthForm('register')">Register</div>
+                </div>
+                
+                <form id="loginForm" class="auth-form active">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+                
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="registerName">Full Name</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerUserType">I am a</label>
+                        <select id="registerUserType" required>
+                            <option value="jobseeker">Job Seeker</option>
+                            <option value="employer">Employer</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        
-        <footer>
-            <p>Advanced WebAR Experience - Requires HTTPS for AR functionality. For best results, use Chrome on Android or Safari on iOS.</p>
-        </footer>
     </div>
-    
-    <!-- AR Viewer Container -->
-    <div id="ar-viewer">
-        <div id="ar-container">
-            <canvas id="ar-canvas"></canvas>
-            <button id="ar-back">
-                <i class="fas fa-arrow-left"></i> Back to Editor
-            </button>
-            <div id="ar-status">Loading AR Experience...</div>
-            <div id="ar-tracking-status" class="not-tracking">Looking for target...</div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>Meechto Jobs</h3>
+                <p>Find your dream job with our advanced job portal. Connect with top employers around the world.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Search Jobs</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Post a Job</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Employee Login</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> HR Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Career Advice</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Resume Builder</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Salary Calculator</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Blog</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Job Street, Career City</p>
+                <p><i class="fas fa-phone"></i> +1 (234) 567-8900</p>
+                <p><i class="fas fa-envelope"></i> info@meechto.com</p>
+            </div>
         </div>
-    </div>
-    
+        <div class="copyright">
+            <p>&copy; 2023 Meechto Job Portal. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
     <script>
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            initModelPreview();
+        // Sample job data
+        const jobs = [
+            {
+                id: 1,
+                title: "Senior Frontend Developer",
+                company: "TechSolutions Inc.",
+                type: "Full-time",
+                location: "San Francisco, CA",
+                salary: "$85,000 - $110,000",
+                posted: "2 days ago",
+                description: "We are looking for an experienced frontend developer with React expertise to join our growing team. You will be responsible for building responsive and interactive user interfaces."
+            },
+            {
+                id: 2,
+                title: "UX/UI Designer",
+                company: "CreativeMinds Agency",
+                type: "Remote",
+                location: "Remote",
+                salary: "$70,000 - $90,000",
+                posted: "1 day ago",
+                description: "Join our design team to create beautiful and functional user interfaces for our clients. You should have experience with Figma, Adobe XD, and prototyping tools."
+            },
+            {
+                id: 3,
+                title: "Data Scientist",
+                company: "DataInsight Corp",
+                type: "Full-time",
+                location: "New York, NY",
+                salary: "$95,000 - $125,000",
+                posted: "5 days ago",
+                description: "Seeking a data scientist to analyze complex datasets and generate actionable insights. Experience with Python, R, and machine learning frameworks required."
+            },
+            {
+                id: 4,
+                title: "Project Manager",
+                company: "BuildNext Projects",
+                type: "Contract",
+                location: "Chicago, IL",
+                salary: "$80,000 - $100,000",
+                posted: "3 days ago",
+                description: "Experienced project manager needed to oversee software development projects. PMP certification and Agile experience preferred."
+            },
+            {
+                id: 5,
+                title: "DevOps Engineer",
+                company: "CloudTech Solutions",
+                type: "Full-time",
+                location: "Austin, TX",
+                salary: "$90,000 - $120,000",
+                posted: "Just now",
+                description: "Looking for a DevOps engineer to streamline our deployment processes and infrastructure. Kubernetes and Docker experience required."
+            },
+            {
+                id: 6,
+                title: "Marketing Specialist",
+                company: "GrowthHackers Media",
+                type: "Part-time",
+                location: "Boston, MA",
+                salary: "$60,000 - $80,000",
+                posted: "1 week ago",
+                description: "Join our marketing team to develop and execute innovative digital marketing strategies. SEO and content marketing experience preferred."
+            }
+        ];
+
+        // Current user state
+        let currentUser = null;
+
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the page
+            initTheme();
+            renderJobCards();
             setupEventListeners();
-            generateQRCode(); // Generate initial QR code
+            checkAuthState();
+            
+            // Initialize sample data in localStorage if not exists
+            if (!localStorage.getItem('jobs')) {
+                localStorage.setItem('jobs', JSON.stringify(jobs));
+            }
         });
-        
-        // Initialize 3D model preview
-        function initModelPreview() {
-            const container = document.getElementById('model-preview');
+
+        // Initialize theme from localStorage
+        function initTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('i');
             
-            // Create scene
-            const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0f172a);
-            
-            // Create camera
-            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.z = 5;
-            
-            // Create renderer
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.height);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.shadowMap.enabled = true;
-            container.appendChild(renderer.domElement);
-            
-            // Add lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(2, 3, 4);
-            directionalLight.castShadow = true;
-            scene.add(directionalLight);
-            
-            const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
-            backLight.position.set(-2, -1, -3);
-            scene.add(backLight);
-            
-            // Add grid helper
-            const gridHelper = new THREE.GridHelper(20, 20, 0x4f46e5, 0x4f46e5);
-            gridHelper.material.opacity = 0.15;
-            gridHelper.material.transparent = true;
-            gridHelper.position.y = -2;
-            scene.add(gridHelper);
-            
-            // Add orbit controls
-            const controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.screenSpacePanning = true;
-            
-            // Animation loop
-            function animate() {
-                requestAnimationFrame(animate);
-                controls.update();
-                renderer.render(scene, camera);
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
             }
             
-            animate();
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                camera.aspect = container.clientWidth / container.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(container.clientWidth, container.clientHeight);
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-theme');
+                
+                if (document.body.classList.contains('dark-theme')) {
+                    localStorage.setItem('theme', 'dark');
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    localStorage.setItem('theme', 'light');
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
             });
-            
-            // Load default model
-            loadModel(document.getElementById('model-url').value, scene, () => {
-                document.getElementById('model-placeholder').style.display = 'none';
-            });
-            
-            // Store references for later use
-            window.modelScene = scene;
-            window.modelCamera = camera;
-            window.modelRenderer = renderer;
-            window.modelControls = controls;
         }
-        
+
+        // Render job cards
+        function renderJobCards() {
+            const jobsContainer = document.querySelector('.jobs-container');
+            const jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+            
+            jobsContainer.innerHTML = '';
+            
+            jobs.forEach(job => {
+                const jobCard = document.createElement('div');
+                jobCard.className = 'job-card';
+                jobCard.innerHTML = `
+                    <div class="job-card-header">
+                        <div>
+                            <h3 class="job-title">${job.title}</h3>
+                            <div class="company">
+                                <i class="fas fa-building"></i>
+                                <span>${job.company}</span>
+                            </div>
+                        </div>
+                        <span class="job-type">${job.type}</span>
+                    </div>
+                    <div class="job-card-body">
+                        <p class="job-desc">${job.description}</p>
+                        <div class="job-details">
+                            <div class="detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${job.location}</span>
+                            </div>
+                            <div class="detail">
+                                <i class="fas fa-clock"></i>
+                                <span>${job.posted}</span>
+                            </div>
+                        </div>
+                        <div class="payment">${job.salary}</div>
+                    </div>
+                    <div class="job-card-footer">
+                        <button class="job-btn btn-call"><i class="fas fa-phone"></i> Call</button>
+                        <button class="job-btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                        <button class="job-btn btn-apply">Apply Now</button>
+                        <button class="job-btn btn-view">View More</button>
+                    </div>
+                `;
+                jobsContainer.appendChild(jobCard);
+            });
+        }
+
         // Set up event listeners
         function setupEventListeners() {
-            // Model file handling
-            document.getElementById('model-file-btn').addEventListener('click', () => {
-                document.getElementById('model-file').click();
-            });
+            // Back to top button
+            const backToTopBtn = document.getElementById('backToTop');
             
-            document.getElementById('model-file').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    document.getElementById('model-url').value = url;
-                    loadModel(url, window.modelScene, () => {
-                        document.getElementById('model-placeholder').style.display = 'none';
-                    });
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
                 }
             });
             
-            document.getElementById('model-url').addEventListener('change', (e) => {
-                if (e.target.value) {
-                    loadModel(e.target.value, window.modelScene, () => {
-                        document.getElementById('model-placeholder').style.display = 'none';
-                    });
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // Auth forms
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleLogin();
+            });
+            
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleRegister();
+            });
+
+            // Add event listeners to job action buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn-apply')) {
+                    if (!currentUser) {
+                        showAuthModal('login');
+                    } else {
+                        alert('Application submitted successfully!');
+                    }
+                } else if (e.target.classList.contains('btn-call')) {
+                    alert('Calling employer...');
+                } else if (e.target.classList.contains('btn-whatsapp')) {
+                    alert('Opening WhatsApp...');
+                } else if (e.target.classList.contains('btn-view')) {
+                    alert('Showing job details...');
                 }
-            });
-            
-            // Target file handling
-            document.getElementById('target-file-btn').addEventListener('click', () => {
-                document.getElementById('target-file').click();
-            });
-            
-            document.getElementById('target-file').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    document.getElementById('target-url').value = url;
-                }
-            });
-            
-            // Reset buttons
-            document.getElementById('reset-model').addEventListener('click', () => {
-                if (window.modelControls) {
-                    window.modelCamera.position.set(0, 0, 5);
-                    window.modelCamera.lookAt(0, 0, 0);
-                    window.modelControls.reset();
-                }
-            });
-            
-            document.getElementById('center-model').addEventListener('click', () => {
-                centerModel(window.modelScene, window.modelCamera, window.modelControls);
-            });
-            
-            // Start AR button
-            document.getElementById('start-ar').addEventListener('click', startAR);
-            
-            // QR Code buttons
-            document.getElementById('generate-qr').addEventListener('click', generateQRCode);
-            document.getElementById('download-png').addEventListener('click', () => downloadQRCode('png'));
-            document.getElementById('download-jpg').addEventListener('click', () => downloadQRCode('jpg'));
-            document.getElementById('download-svg').addEventListener('click', () => downloadQRCode('svg'));
-            
-            // Print target button
-            document.getElementById('print-target').addEventListener('click', () => {
-                window.print();
-            });
-            
-            // AR back button
-            document.getElementById('ar-back').addEventListener('click', () => {
-                document.getElementById('ar-viewer').style.display = 'none';
-                document.querySelector('.container').style.display = 'flex';
             });
         }
-        
-        // Load 3D model
-        function loadModel(url, scene, callback) {
-            // Remove existing model if any
-            if (window.currentModel) {
-                scene.remove(window.currentModel);
+
+        // Check authentication state
+        function checkAuthState() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                currentUser = user;
+                showUserMenu();
+                updateDashboardForUserType();
             }
-            
-            // Show loading indicator
-            document.getElementById('model-placeholder').innerHTML = `
-                <div class="loader">
-                    <div style="font-size: 64px; color: #4f46e5; margin-bottom: 20px; animation: spin 1s linear infinite;">
-                        <i class="fas fa-spinner spinner"></i>
-                    </div>
-                    <h3>Loading 3D Model</h3>
-                    <p>Please wait while we load your model...</p>
-                </div>
-            `;
-            document.getElementById('model-placeholder').style.display = 'flex';
-            
-            // Create a loader
-            const loader = new THREE.GLTFLoader();
-            
-            // Load GLB model
-            loader.load(
-                url,
-                (gltf) => {
-                    const model = gltf.scene;
-                    scene.add(model);
-                    
-                    // Center and scale model
-                    centerModel(scene, window.modelCamera, window.modelControls, model);
-                    
-                    window.currentModel = model;
-                    if (callback) callback();
-                },
-                undefined,
-                (error) => {
-                    console.error('Error loading model:', error);
-                    document.getElementById('model-placeholder').innerHTML = `
-                        <div style="font-size: 64px; color: #ef4444; margin-bottom: 20px;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <h3>Error Loading Model</h3>
-                        <p>Could not load the 3D model. Please check the URL or file format.</p>
-                        <button class="button secondary" onclick="document.getElementById('model-placeholder').style.display = 'none'">
-                            <i class="fas fa-times"></i> Close
-                        </button>
-                    `;
-                    
-                    if (callback) callback();
-                }
-            );
         }
-        
-        // Center model in view
-        function centerModel(scene, camera, controls, model = window.currentModel) {
-            if (!model) return;
+
+        // Show user menu when logged in
+        function showUserMenu() {
+            document.getElementById('authButtons').classList.add('hidden');
+            document.getElementById('userMenu').classList.remove('hidden');
             
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            
-            model.position.x -= center.x;
-            model.position.y -= center.y;
-            model.position.z -= center.z;
-            
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 5 / maxDim;
-            model.scale.set(scale, scale, scale);
-            
-            camera.position.set(0, 0, 5);
-            camera.lookAt(0, 0, 0);
-            controls.update();
+            const userAvatar = document.querySelector('.user-avatar');
+            if (currentUser) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+            }
         }
-        
-        // Start AR experience
-        function startAR() {
-            const modelUrl = document.getElementById('model-url').value;
-            const targetUrl = document.getElementById('target-url').value;
+
+        // Update dashboard based on user type
+        function updateDashboardForUserType() {
+            if (currentUser && currentUser.type === 'employer') {
+                document.getElementById('employer-post-job').classList.remove('hidden');
+                document.getElementById('employer-vacancies').classList.remove('hidden');
+                showDashboardTab('vacancies');
+            } else {
+                document.getElementById('employer-post-job').classList.add('hidden');
+                document.getElementById('employer-vacancies').classList.add('hidden');
+                showDashboardTab('overview');
+            }
+        }
+
+        // Show page function
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active');
+            });
             
-            if (!modelUrl) {
-                alert('Please upload a 3D model or provide a URL first');
+            // Show the requested page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Show auth modal
+        function showAuthModal(formType) {
+            document.getElementById('authModal').classList.add('active');
+            showAuthForm(formType);
+        }
+
+        // Close auth modal
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        // Show auth form
+        function showAuthForm(formType) {
+            // Update active tab
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.auth-tab')[formType === 'login' ? 0 : 1].classList.add('active');
+            
+            // Update form visibility
+            document.getElementById('loginForm').classList.toggle('active', formType === 'login');
+            document.getElementById('registerForm').classList.toggle('active', formType === 'register');
+            
+            // Update modal title
+            document.getElementById('authModalTitle').textContent = formType === 'login' ? 'Login' : 'Register';
+        }
+
+        // Handle login
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Simple validation
+            if (!email || !password) {
+                alert('Please fill in all fields');
                 return;
             }
             
-            if (!targetUrl) {
-                alert('Please provide a .mind file for image tracking');
-                return;
+            // In a real app, this would be an API call
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showUserMenu();
+                updateDashboardForUserType();
+                closeAuthModal();
+                showPage('dashboard');
+            } else {
+                alert('Invalid email or password');
             }
-            
-            // Check if we're on HTTPS or localhost
-            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-                alert('AR functionality requires HTTPS. Please host this page on a secure server or run it on localhost.');
-                return;
-            }
-            
-            // Show AR viewer
-            document.querySelector('.container').style.display = 'none';
-            document.getElementById('ar-viewer').style.display = 'flex';
-            document.getElementById('ar-status').style.display = 'block';
-            
-            // Start AR simulation
-            simulateARExperience();
         }
-        
-        // Simulate AR experience
-        function simulateARExperience() {
-            const arCanvas = document.getElementById('ar-canvas');
-            const arStatus = document.getElementById('ar-status');
-            const arTrackingStatus = document.getElementById('ar-tracking-status');
+
+        // Handle register
+        function handleRegister() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const userType = document.getElementById('registerUserType').value;
             
-            // Create a simple AR simulation
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ canvas: arCanvas, antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            
-            // Add camera feed background (simulated)
-            const videoTexture = createCameraTexture();
-            const videoGeometry = new THREE.PlaneGeometry(16, 9);
-            const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-            const videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
-            videoPlane.scale.set(20, 20, 20);
-            videoPlane.position.z = -10;
-            scene.add(videoPlane);
-            
-            // Add a grid floor
-            const gridHelper = new THREE.GridHelper(20, 20, 0xffffff, 0xffffff);
-            gridHelper.material.opacity = 0.2;
-            gridHelper.material.transparent = true;
-            gridHelper.position.y = -2;
-            scene.add(gridHelper);
-            
-            // Add the 3D model to the AR scene
-            if (window.currentModel) {
-                const modelClone = window.currentModel.clone();
-                scene.add(modelClone);
-                
-                // Position the model in the center
-                modelClone.position.set(0, 0, 0);
-                
-                // Add animation
-                let time = 0;
-                function animateModel() {
-                    time += 0.01;
-                    modelClone.rotation.y = time;
-                    requestAnimationFrame(animateModel);
-                }
-                animateModel();
+            // Simple validation
+            if (!name || !email || !password) {
+                alert('Please fill in all fields');
+                return;
             }
             
-            // Add lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
+            // In a real app, this would be an API call
+            const users = JSON.parse(localStorage.getItem('users')) || [];
             
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(2, 3, 4);
-            scene.add(directionalLight);
-            
-            // Position camera
-            camera.position.set(0, 1.5, 3);
-            
-            // Simulate tracking after a delay
-            setTimeout(() => {
-                arStatus.style.display = 'none';
-                arTrackingStatus.textContent = 'Target found!';
-                arTrackingStatus.className = 'tracking';
-            }, 2000);
-            
-            // Animation loop
-            function animate() {
-                requestAnimationFrame(animate);
-                renderer.render(scene, camera);
+            // Check if user already exists
+            if (users.find(u => u.email === email)) {
+                alert('User with this email already exists');
+                return;
             }
-            animate();
             
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+            // Create new user
+            const newUser = {
+                id: Date.now(),
+                name,
+                email,
+                password,
+                type: userType
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Log the user in
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            showUserMenu();
+            updateDashboardForUserType();
+            closeAuthModal();
+            showPage('dashboard');
+        }
+
+        // Logout function
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('userMenu').classList.add('hidden');
+            showPage('home');
+        }
+
+        // Toggle user dropdown
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        // Show dashboard tab
+        function showDashboardTab(tabId) {
+            // Update active menu item
+            document.querySelectorAll('.sidebar-menu-item').forEach(item => {
+                item.classList.remove('active');
             });
-        }
-        
-        // Create a simulated camera texture
-        function createCameraTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 512;
-            const context = canvas.getContext('2d');
             
-            // Draw a gradient background
-            const gradient = context.createRadialGradient(256, 256, 50, 256, 256, 300);
-            gradient.addColorStop(0, '#4f46e5');
-            gradient.addColorStop(1, '#1e293b');
-            context.fillStyle = gradient;
-            context.fillRect(0, 0, 512, 512);
-            
-            // Draw some random noise to simulate camera feed
-            const imageData = context.getImageData(0, 0, 512, 512);
-            const data = imageData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                // Add some random noise
-                const noise = Math.random() * 20;
-                data[i] += noise;     // R
-                data[i + 1] += noise; // G
-                data[i + 2] += noise; // B
+            const tabIndex = ['overview', 'profile', 'my-jobs', 'applications', 'messages', 'settings', 'post-job', 'vacancies'].indexOf(tabId);
+            if (tabIndex !== -1) {
+                document.querySelector(`.sidebar-menu-item:nth-child(${tabIndex + 1})`).classList.add('active');
             }
-            context.putImageData(imageData, 0, 0);
             
-            // Draw a target symbol in the center
-            context.strokeStyle = '#ffffff';
-            context.lineWidth = 3;
-            context.beginPath();
-            context.arc(256, 256, 50, 0, Math.PI * 2);
-            context.stroke();
-            
-            context.beginPath();
-            context.moveTo(206, 256);
-            context.lineTo(306, 256);
-            context.stroke();
-            
-            context.beginPath();
-            context.moveTo(256, 206);
-            context.lineTo(256, 306);
-            context.stroke();
-            
-            const texture = new THREE.CanvasTexture(canvas);
-            return texture;
-        }
-        
-        // Generate QR Code
-        function generateQRCode() {
-            const qrElement = document.getElementById('qrcode');
-            qrElement.innerHTML = '';
-            
-            // Get model and target URLs
-            const modelUrl = encodeURIComponent(document.getElementById('model-url').value);
-            const targetUrl = encodeURIComponent(document.getElementById('target-url').value);
-            
-            // Create a URL with parameters for AR experience
-            const currentUrl = window.location.href.split('?')[0]; // Remove existing parameters
-            const arUrl = `${currentUrl}?ar=true&model=${modelUrl}&target=${targetUrl}`;
-            
-            // Generate QR code
-            QRCode.toCanvas(qrElement, arUrl, {
-                width: 180,
-                margin: 1,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff'
-                }
-            }, function (error) {
-                if (error) console.error(error);
-                else {
-                    // Add success message
-                    const successMsg = document.createElement('div');
-                    successMsg.style.color = '#22c55e';
-                    successMsg.style.marginTop = '10px';
-                    successMsg.style.fontSize = '14px';
-                    successMsg.innerHTML = '<i class="fas fa-check-circle"></i> QR Code generated successfully!';
-                    qrElement.parentNode.appendChild(successMsg);
-                    
-                    // Remove message after 3 seconds
-                    setTimeout(() => {
-                        successMsg.remove();
-                    }, 3000);
-                }
+            // Update tab visibility
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.classList.add('hidden');
             });
-        }
-        
-        // Download QR Code
-        function downloadQRCode(format) {
-            const canvas = document.querySelector('#qrcode canvas');
-            if (!canvas) {
-                alert('Please generate a QR code first');
-                return;
-            }
             
-            let mimeType, extension;
-            
-            switch(format) {
-                case 'png':
-                    mimeType = 'image/png';
-                    extension = 'png';
-                    break;
-                case 'jpg':
-                    mimeType = 'image/jpeg';
-                    extension = 'jpg';
-                    break;
-                case 'svg':
-                    // For SVG, we need to generate it separately
-                    const modelUrl = encodeURIComponent(document.getElementById('model-url').value);
-                    const targetUrl = encodeURIComponent(document.getElementById('target-url').value);
-                    const currentUrl = window.location.href.split('?')[0];
-                    const arUrl = `${currentUrl}?ar=true&model=${modelUrl}&target=${targetUrl}`;
-                    
-                    QRCode.toString(arUrl, {
-                        type: 'svg',
-                        width: 300,
-                        margin: 1,
-                        color: {
-                            dark: '#000000',
-                            light: '#ffffff'
-                        }
-                    }, function (error, svg) {
-                        if (error) {
-                            console.error(error);
-                            alert('Error generating SVG QR code');
-                            return;
-                        }
-                        
-                        const blob = new Blob([svg], { type: 'image/svg+xml' });
-                        const url = URL.createObjectURL(blob);
-                        
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `ar-experience.svg`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                    });
-                    return;
-                default:
-                    mimeType = 'image/png';
-                    extension = 'png';
-            }
-            
-            const image = canvas.toDataURL(mimeType);
-            const a = document.createElement('a');
-            a.href = image;
-            a.download = `ar-experience.${extension}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            document.getElementById(`dashboard-${tabId}`).classList.remove('hidden');
         }
     </script>
 </body>
